@@ -1,0 +1,9 @@
+.editorconfig
+.nyc_output
+.travis.yml
+coverage
+node_modules
+test
+tsconfig.dist.json
+tsconfig.json
+tslint.json
