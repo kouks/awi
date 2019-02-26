@@ -1,2 +1,4 @@
 
-# Awi–versatile, modern and lightweight http client based on promises.
+# Awi
+
+Versatile, modern and lightweight http client based on promises.
