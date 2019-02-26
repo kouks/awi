@@ -7,3 +7,4 @@ test
 tsconfig.dist.json
 tsconfig.json
 tslint.json
+dist

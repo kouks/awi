@@ -1,30 +1,16 @@
 
-// config.ts
+export * from './types'
+export * from './exceptions'
 
-// export const base = () => new Client()
-//   .use(async req => req.base = 'http://myapi.io/v1')
-//   .use(async req => req.headers['Content-Type'] = 'application/json')
+export { Awi } from '@/Awi'
 
-// export const authenticated = () => base()
-//   .use(async req => req.headers['Authorization'] = `Bearer ${localStorage.token}`)
+export { Method } from '@/enumerations/Method'
+export { Status } from '@/enumerations/Status'
+export { ResponseType } from '@/enumerations/ResponseType'
 
-// // request.ts
+export { Client } from '@/contracts/Client'
+export { Request } from '@/contracts/Request'
+export { Executor } from '@/contracts/Executor'
+export { Response } from '@/contracts/Response'
 
-// import { base, authenticated } from 'config'
-
-// const data = await base()
-//   .use(async req => req.path = 'todos')
-//   .get()
-//   .then(async res => res.data)
-
-// // Or
-
-// const data = await base('todos').get()
-//   .then(async res => res.data)
-
-// // Or
-
-// const user = await authenticated('user').get()
-//   .then(async res => res.data)
-
-// new Awi()
+export { XhrExecutor } from '@/executors/XhrExecutor'

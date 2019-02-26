@@ -8,7 +8,7 @@ export interface Executor {
    *
    * @param request The request object to use
    * @return The desired response
-   * @throws // TODO
+   * @throws {AwiException}
    */
   send<T extends Response> (request: Request) : Promise<T>
 

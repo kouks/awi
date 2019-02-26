@@ -34,7 +34,7 @@ export class XhrExecutor implements Executor {
         request.method.toString(),
         this.buildRequestUri(request),
         true,
-        request.authentication.username,
+        request.authentication.username, // TODO: Check if this works.
         request.authentication.password,
       )
 
@@ -90,6 +90,7 @@ export class XhrExecutor implements Executor {
    *
    * @param request The reuest instance to use
    * @return The resulting URI
+   * @throws {InvalidRequestUrlException}
    */
   private buildRequestUri (request: Request) : string {
     try {

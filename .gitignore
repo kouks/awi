@@ -3,6 +3,7 @@
 node_modules/
 types/
 dist/
+build/
 
 # Editors
 .vscode/

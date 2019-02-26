@@ -17,21 +17,33 @@ export interface Client {
    * Perform the transformed request.
    *
    * @return The desired response
-   * @throws TODO
+   * @throws {AwiException}
    */
   send<T extends Response> () : Promise<T>
 
   /**
-   * Get request execution shorthand.
+   * Get, delete, head and options request execution shorthands.
    *
    * @param path The path to use for the request
-   * TODO: Add hash?
    * @return The desired response
-   * @throws TODO
+   * @throws {AwiException}
    */
   get<T extends Response> (path?: string) : Promise<T>
+  delete<T extends Response> (path?: string) : Promise<T>
+  head<T extends Response> (path?: string) : Promise<T>
+  options<T extends Response> (path?: string) : Promise<T>
 
-  // TODO: More methods.
+  /**
+   * Post, put and patch request execution shorthands.
+   *
+   * @param path The path to use for the request
+   * @param body The body to be sent with the request
+   * @return The desired response
+   * @throws {AwiException}
+   */
+  post<T extends Response> (path?: string, body?: any) : Promise<T>
+  put<T extends Response> (path?: string, body?: any) : Promise<T>
+  patch<T extends Response> (path?: string, body?: any) : Promise<T>
 
   /**
    * Discars any previously defined interceptors for the given instance. This is
@@ -42,6 +54,6 @@ export interface Client {
   /**
    * Discards any listeners assigned to the instance. TODO
    */
-  // deafen () : Awiable
+  // deafen () : Client
 
 }
