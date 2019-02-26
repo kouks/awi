@@ -1,3 +1,2 @@
 
-
-todo: tsconfig cleanup
+# Awi–versatile, modern and lightweight http client based on promises.
