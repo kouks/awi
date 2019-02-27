@@ -1,0 +1,26 @@
+language: node_js
+
+node_js:
+  - stable
+
+script:
+  - npm run build
+  - npm run test
+
+deploy:
+  provider: script
+  script:
+    - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
+    - npm version ${TRAVIS_TAG/v/} --allow-same-version --no-git-tag-version
+    - npm run build
+    - npm publish --access public
+    - git config --global user.email "travis@travis-ci.org"
+    - git config --global user.name "Travis CI"
+    - git remote add deployer https://${GITHUB_TOKEN}@github.com/kouks/awi.git
+    - git add ./*.json
+    - git commit -m "$TRAVIS_TAG"
+    - git push deployer HEAD:master
+  skip_cleanup: true
+  on:
+    tags: true
+    repo: kouks/awi
