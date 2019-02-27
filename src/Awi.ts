@@ -4,7 +4,7 @@ import { Request } from '@/contracts/Request'
 import { Method } from '@/enumerations/Method'
 import { Response } from '@/contracts/Response'
 import { XhrExecutor } from '@/executors/XhrExecutor'
-import { ResponseType } from './enumerations/ResponseType'
+import { ResponseType } from '@/enumerations/ResponseType'
 
 export class Awi implements Client {
 

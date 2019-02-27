@@ -1,4 +1,4 @@
-const basePath = (dir) => require('path').join(__dirname, dir)
+const basePath = dir => require('path').join(__dirname, dir)
 const FriendlyErrors = require('friendly-errors-webpack-plugin')
 
 module.exports = {
@@ -25,10 +25,9 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.ts$/,
         loader: 'ts-loader',
-        include: [basePath('src'), basePath('config')],
-        options: { appendTsSuffixTo: [/\.vue$/] }
+        include: [basePath('src')]
       }
     ]
   }

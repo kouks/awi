@@ -97,7 +97,7 @@ export class XhrExecutor implements Executor {
       // Trim slashes from the provided base and path and also consider either
       // path or base to be the full URL.
       const base: string = (request.base || '').replace(/^\/*(.*?)\/*$/, '$1')
-      const path: string = (request.path || '').replace(/^\/*(.*?)\/*$/, '$1')
+      const path: string = (request.path || '').replace(/^\/*(.*)/, '$1')
 
       const url: URL = new URL(
         `${base === '' ? '' : base + '/'}${path}`,
