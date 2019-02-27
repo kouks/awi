@@ -102,6 +102,15 @@ export class Awi implements Client {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public discard () : Client {
+    this.interceptors = []
+
+    return this
+  }
+
+  /**
    * Prepare the request by adding interceptors from the helper method
    * arguments.
    *
@@ -120,15 +129,6 @@ export class Awi implements Client {
     }
 
     return this.use(async req => req.method = method)
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public discard () : Client {
-    this.interceptors = []
-
-    return this
   }
 
 }

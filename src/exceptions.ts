@@ -1,5 +1,6 @@
 import { Request } from './contracts/Request'
 
+// TODO: This could implement an interface.
 export class AwiException extends Error {
 
   /**

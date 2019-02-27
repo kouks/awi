@@ -7,7 +7,11 @@ import {
   Status,
   Response,
   ResponseType,
+  RequestFailedException,
+  RequestAbortedException,
+  RequestTimedOutException,
   InvalidRequestUrlException,
+  RequestInvalidatedException,
 } from '@'
 
 describe('XhrExecutor', () => {
@@ -352,6 +356,73 @@ describe('XhrExecutor', () => {
         .to.eventually.be.rejectedWith(InvalidRequestUrlException)
         .and.to.satisfy((e: InvalidRequestUrlException) => e.request.path === 'invalid-url')
     })
+
+    it('rejects when request fails due to network issues', (done) => {
+      // Given.
+      server.respondWith((req) => {
+        // Then.
+        try {
+          expect(req.onerror).to.throw(RequestFailedException)
+          done()
+        } catch (e) { done(e) }
+      })
+
+      // When.
+      new Awi()
+        .get<Response>('http://server.api')
+        .catch(() => undefined)
+    })
+
+    it('rejects when request fails due to being aborted', (done) => {
+      // Given.
+      server.respondWith((req) => {
+        // Then.
+        try {
+          expect((req as any).onabort).to.throw(RequestAbortedException)
+          done()
+        } catch (e) { done(e) }
+      })
+
+      // When.
+      new Awi()
+        .get<Response>('http://server.api')
+        .catch(() => undefined)
+    })
+
+    it('rejects when request fails due to a timeout', (done) => {
+      // Given.
+      server.respondWith((req) => {
+        // Then.
+        try {
+          expect((req as any).ontimeout).to.throw(RequestTimedOutException)
+          done()
+        } catch (e) { done(e) }
+      })
+
+      // When.
+      new Awi()
+        .get<Response>('http://server.api')
+        .catch(() => undefined)
+    })
+
+    it('does not allow to reuse a request', async () => {
+      // Given.
+      server.respondWith((req) => {
+        req.respond(Status.OK, {}, '')
+      })
+
+      const client = new Awi()
+
+      await client.get<Response>('http://server.api')
+
+      // When.
+      const process = client.get<Response>('http://server.api')
+
+      // Then.
+      await expect(process)
+        .to.eventually.be.rejectedWith(RequestInvalidatedException)
+    })
+
   })
 
 })
