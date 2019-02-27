@@ -2,6 +2,7 @@ import { expect } from 'chai'
 
 import {
   Awi,
+  Method,
   Status,
   Request,
   Executor,
@@ -69,6 +70,8 @@ describe('Awi client', () => {
       // Then.
       expect(response.body)
         .to.have.property('path').that.equals('resource')
+      expect(response.body)
+        .to.have.property('method').that.equals(Method.GET)
     })
 
     it('has a working DELETE helper', async () => {
@@ -80,6 +83,8 @@ describe('Awi client', () => {
       // Then.
       expect(response.body)
         .to.have.property('path').that.equals('resource')
+      expect(response.body)
+        .to.have.property('method').that.equals(Method.DELETE)
     })
 
     it('has a working HEAD helper', async () => {
@@ -91,6 +96,8 @@ describe('Awi client', () => {
       // Then.
       expect(response.body)
         .to.have.property('path').that.equals('resource')
+      expect(response.body)
+        .to.have.property('method').that.equals(Method.HEAD)
     })
 
     it('has a working OPTIONS helper', async () => {
@@ -102,6 +109,8 @@ describe('Awi client', () => {
       // Then.
       expect(response.body)
         .to.have.property('path').that.equals('resource')
+      expect(response.body)
+        .to.have.property('method').that.equals(Method.OPTIONS)
     })
 
     it('has a working POST helper', async () => {
@@ -115,6 +124,8 @@ describe('Awi client', () => {
         .to.have.property('path').that.equals('resource')
       expect(response.body)
         .to.have.property('body').that.deep.equals({ body: 'test' })
+      expect(response.body)
+        .to.have.property('method').that.equals(Method.POST)
     })
 
     it('has a working PUT helper', async () => {
@@ -128,6 +139,8 @@ describe('Awi client', () => {
         .to.have.property('path').that.equals('resource')
       expect(response.body)
         .to.have.property('body').that.deep.equals({ body: 'test' })
+      expect(response.body)
+        .to.have.property('method').that.equals(Method.PUT)
     })
 
     it('has a working PATCH helper', async () => {
@@ -141,6 +154,8 @@ describe('Awi client', () => {
         .to.have.property('path').that.equals('resource')
       expect(response.body)
         .to.have.property('body').that.deep.equals({ body: 'test' })
+      expect(response.body)
+        .to.have.property('method').that.equals(Method.PATCH)
     })
 
   })

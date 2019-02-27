@@ -100,7 +100,7 @@ export class XhrExecutor implements Executor {
       const path: string = (request.path || '').replace(/^\/*(.*)/, '$1')
 
       const url: URL = new URL(
-        `${base === '' ? '' : base + '/'}${path}`,
+        `${base === '' ? '' : path === '' ? base : base + '/'}${path}`,
       )
 
       // Assign desired query parameters.
