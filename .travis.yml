@@ -9,6 +9,7 @@ install:
 
 script:
   - npm run build
+  - npm run dist
   - npm run test
   - npm run coverage:json
 
@@ -21,6 +22,7 @@ deploy:
     - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
     - npm version ${TRAVIS_TAG/v/} --allow-same-version --no-git-tag-version
     - npm run build
+    - npm run dist
     - npm publish --access public
     - git config --global user.email "travis@travis-ci.org"
     - git config --global user.name "Travis CI"
