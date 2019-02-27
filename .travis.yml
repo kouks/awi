@@ -3,9 +3,17 @@ language: node_js
 node_js:
   - stable
 
+install:
+  - npm install codecov -g
+  - npm install
+
 script:
   - npm run build
   - npm run test
+  - npm run coverage:json
+
+after_success:
+  - codecov -f coverage/*.json
 
 deploy:
   provider: script
