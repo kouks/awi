@@ -90,7 +90,8 @@ export class XhrExecutor implements Executor {
    *
    * @param request The reuest instance to use
    * @return The resulting URI
-   * @throws {InvalidRequestUrlException}
+   * @throws {InvalidRequestUrlException} If the provided base and path cannot
+   * be parsed to a URL
    */
   private buildRequestUri (request: Request) : string {
     try {

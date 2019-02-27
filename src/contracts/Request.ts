@@ -20,9 +20,10 @@ export interface Request {
   method: Method
 
   /**
-   * The request body.
+   * The request body. This has to be an 'any' type by default as the user can
+   * send anything.
    */
-  body: any // TODO: Typed??
+  body: any
 
   /**
    * The query added to the request.

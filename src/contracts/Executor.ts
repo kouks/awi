@@ -8,7 +8,7 @@ export interface Executor {
    *
    * @param request The request object to use
    * @return The desired response
-   * @throws {AwiException}
+   * @throws {Error} If somethig goes wrong when executing the request
    */
   send<T extends Response> (request: Request) : Promise<T>
 

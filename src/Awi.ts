@@ -1,4 +1,4 @@
-import { AwiInterceptor } from '@/types'
+import { Interceptor } from '@/types'
 import { Client } from '@/contracts/Client'
 import { Request } from '@/contracts/Request'
 import { Method } from '@/enumerations/Method'
@@ -11,7 +11,7 @@ export class Awi implements Client {
   /**
    * The array of interceptors to be applied.
    */
-  private interceptors: AwiInterceptor[] = []
+  private interceptors: Interceptor[] = []
 
   /**
    * The current request of the request object.
@@ -35,7 +35,7 @@ export class Awi implements Client {
   /**
    * {@inheritdoc}
    */
-  public use (interceptor: AwiInterceptor) : Client {
+  public use (interceptor: Interceptor) : Client {
     this.interceptors.push(interceptor)
 
     return this
@@ -54,8 +54,6 @@ export class Awi implements Client {
 
   /**
    * {@inheritdoc}
-   *
-   * // TODO: Query?
    */
   public async get<T extends Response> (path?: string) : Promise<T> {
     return this.prepare(Method.GET, path).send<T>()
