@@ -1,11 +1,16 @@
 import * as http from 'http'
 import * as https from 'https'
 import { Request } from '@/contracts/Request'
+import { Status } from '@/enumerations/Status'
 import { Response } from '@/contracts/Response'
 import { AbstractExecutor } from './AbstractExecutor'
-import { RequestTimedOutException, RequestFailedException, RequestAbortedException } from '@/exceptions'
-import { ResponseType } from '@/enumerations/ResponseType';
-import { Status } from '@/enumerations/Status';
+import { ResponseType } from '@/enumerations/ResponseType'
+
+import {
+  RequestFailedException,
+  RequestAbortedException,
+  RequestTimedOutException,
+} from '@/exceptions'
 
 export class HttpExecutor extends AbstractExecutor {
 
@@ -16,7 +21,8 @@ export class HttpExecutor extends AbstractExecutor {
     return new Promise<T>((resolve, reject) => {
 
       const url: URL = this.buildRequestUrl(request)
-      const protocol = url.protocol === 'https:' ? https : http
+      // TODO: Figure this out
+      // const protocol = url.protocol === 'https:' ? https : http
       let requestTimedOut: boolean = false
 
       const process: http.ClientRequest = https.request({
@@ -91,6 +97,7 @@ export class HttpExecutor extends AbstractExecutor {
 
   /**
    * Parse raw headers into a javascript object.
+   * TODO: Implement this
    *
    * @param headers
    * @return The parsed headers

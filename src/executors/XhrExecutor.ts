@@ -33,8 +33,6 @@ export class XhrExecutor extends AbstractExecutor {
         request.method.toString(),
         this.buildRequestUrl(request).toString(),
         true,
-        request.authentication.username, // TODO: Check if this works.
-        request.authentication.password,
       )
 
       // Assign the timeout, 0 (which is default) is no timeout.
@@ -53,17 +51,14 @@ export class XhrExecutor extends AbstractExecutor {
           return
         }
 
-        // TODO: Finalize.
         // TODO: Handle body in mutations?
-        const response: T = {
-          body: request.responseType === ResponseType.TEXT ? this.xhr.responseText : this.xhr.response,
-          status: this.xhr.status as Status,
-          headers: this.parseHeaders(this.xhr),
-        } as T
-
-        return response.status < Status.BAD_REQUEST
-          ? resolve(response)
-          : reject(response)
+        this.finalize(
+          resolve,
+          reject,
+          request.responseType === ResponseType.TEXT ? this.xhr.responseText : this.xhr.response,
+          this.xhr.status as Status,
+          this.parseHeaders(this.xhr),
+        )
       }
 
       // When the request is explicitly aborted.

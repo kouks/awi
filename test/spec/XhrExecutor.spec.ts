@@ -70,8 +70,7 @@ describe('XhrExecutor', () => {
       // Given.
       server.respondWith((req) => {
         req.respond(Status.OK, {}, JSON.stringify({
-          username: req.username,
-          password: req.password,
+          url: req.url
         }))
       })
 
@@ -84,9 +83,7 @@ describe('XhrExecutor', () => {
 
       // Then.
       expect(response.body)
-        .to.have.property('username').that.equals('awi')
-      expect(response.body)
-        .to.have.property('password').that.equals('secret')
+        .to.have.property('url').that.equals('http://awi:secret@server.api/')
     })
 
     it('assigns a timeout to the request', async () => {
