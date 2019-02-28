@@ -6,6 +6,7 @@ import {
   Method,
   Status,
   Response,
+  XhrExecutor,
   ResponseType,
   RequestFailedException,
   RequestAbortedException,
@@ -36,6 +37,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .get<Response>('http://server.api')
 
       // Then.
@@ -55,6 +57,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .use(async req => req.headers.set('accept', 'application/json'))
         .get<Response>('http://server.api')
 
@@ -74,6 +77,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .use(async req => req.authentication.username = 'awi')
         .use(async req => req.authentication.password = 'secret')
         .get<Response>('http://server.api')
@@ -95,6 +99,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .use(async req => req.timeout = 1000)
         .get<Response>('http://server.api')
 
@@ -113,6 +118,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .use(async req => req.responseType = ResponseType.JSON)
         .get<Response>('http://server.api')
 
@@ -132,6 +138,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .use(async req => req.body = { ok: true })
         .post<Response>('http://server.api')
 
@@ -152,6 +159,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .use(async req => req.base = 'http://server.api')
         .get('todos')
 
@@ -168,6 +176,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .get('http://server.api/todos')
 
       // Then.
@@ -183,6 +192,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .use(async req => req.base = 'http://server.api/todos')
         .get()
 
@@ -199,6 +209,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .use(async req => req.query.set('awi', 'awesome'))
         .use(async req => req.query.set('key', '123'))
         .get('http://server.api')
@@ -216,6 +227,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .use(async req => req.query.set('encoded', '&awi=awesome'))
         .get('http://server.api')
 
@@ -236,6 +248,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .get<Response>('http://server.api')
 
       // Then.
@@ -251,6 +264,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .use(async req => req.responseType = ResponseType.TEXT)
         .get<Response>('http://server.api')
 
@@ -267,6 +281,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .get<Response>('http://server.api')
 
       // Then.
@@ -282,6 +297,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .get<Response>('http://server.api')
 
       // Then.
@@ -301,6 +317,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .get<Response>('http://server.api')
 
       // Then.
@@ -319,6 +336,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const response = await new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .get<Response>('http://server.api')
 
       // Then.
@@ -334,6 +352,7 @@ describe('XhrExecutor', () => {
 
       // When.
       const process = new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .get<Response>('http://server.api')
 
       // Then.
@@ -349,6 +368,7 @@ describe('XhrExecutor', () => {
     it('rejects when the request URL is invalid', async () => {
       // When.
       const process = new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .get<Response>('invalid-url')
 
       // Then.
@@ -357,7 +377,7 @@ describe('XhrExecutor', () => {
         .and.to.satisfy((e: InvalidRequestUrlException) => e.request.path === 'invalid-url')
     })
 
-    it('rejects when request fails due to network issues', (done) => {
+    it('rejects when a request fails due to network issues', (done) => {
       // Given.
       server.respondWith((req) => {
         // Then.
@@ -369,11 +389,12 @@ describe('XhrExecutor', () => {
 
       // When.
       new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .get<Response>('http://server.api')
         .catch(() => undefined)
     })
 
-    it('rejects when request fails due to being aborted', (done) => {
+    it('rejects when a request fails due to being aborted', (done) => {
       // Given.
       server.respondWith((req) => {
         // Then.
@@ -385,11 +406,12 @@ describe('XhrExecutor', () => {
 
       // When.
       new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .get<Response>('http://server.api')
         .catch(() => undefined)
     })
 
-    it('rejects when request fails due to a timeout', (done) => {
+    it('rejects when a request fails due to a timeout', (done) => {
       // Given.
       server.respondWith((req) => {
         // Then.
@@ -401,6 +423,7 @@ describe('XhrExecutor', () => {
 
       // When.
       new Awi()
+        .use(async req => req.executor = new XhrExecutor)
         .get<Response>('http://server.api')
         .catch(() => undefined)
     })
@@ -411,7 +434,9 @@ describe('XhrExecutor', () => {
         req.respond(Status.OK, {}, '')
       })
 
+      const executor = new XhrExecutor
       const client = new Awi()
+        .use(async req => req.executor = executor)
 
       await client.get<Response>('http://server.api')
 

@@ -1,18 +1,17 @@
 import { Request } from '@/contracts/Request'
 import { Status } from '@/enumerations/Status'
-import { Executor } from '@/contracts/Executor'
 import { Response } from '@/contracts/Response'
+import { AbstractExecutor } from './AbstractExecutor'
 import { ResponseType } from '@/enumerations/ResponseType'
 
 import {
   RequestFailedException,
   RequestAbortedException,
   RequestTimedOutException,
-  InvalidRequestUrlException,
   RequestInvalidatedException,
 } from '@/exceptions'
 
-export class XhrExecutor implements Executor {
+export class XhrExecutor extends AbstractExecutor {
 
   /**
    * The native http request client.
@@ -32,7 +31,7 @@ export class XhrExecutor implements Executor {
       // Open the request.
       this.xhr.open(
         request.method.toString(),
-        this.buildRequestUri(request),
+        this.buildRequestUrl(request).toString(),
         true,
         request.authentication.username, // TODO: Check if this works.
         request.authentication.password,
@@ -54,6 +53,8 @@ export class XhrExecutor implements Executor {
           return
         }
 
+        // TODO: Finalize.
+        // TODO: Handle body in mutations?
         const response: T = {
           body: request.responseType === ResponseType.TEXT ? this.xhr.responseText : this.xhr.response,
           status: this.xhr.status as Status,
@@ -85,38 +86,7 @@ export class XhrExecutor implements Executor {
   }
 
   /**
-   * Build a URI from the request instance.
-   * TODO: This should be extracted up.
-   *
-   * @param request The reuest instance to use
-   * @return The resulting URI
-   * @throws {InvalidRequestUrlException} If the provided base and path cannot
-   * be parsed to a URL
-   */
-  private buildRequestUri (request: Request) : string {
-    try {
-      // Trim slashes from the provided base and path and also consider either
-      // path or base to be the full URL.
-      const base: string = (request.base || '').replace(/^\/*(.*?)\/*$/, '$1')
-      const path: string = (request.path || '').replace(/^\/*(.*)/, '$1')
-
-      const url: URL = new URL(
-        `${base === '' ? '' : path === '' ? base : base + '/'}${path}`,
-      )
-
-      // Assign desired query parameters.
-      Array.from(request.query.entries())
-        .forEach(([key, value]) => url.searchParams.set(key, value))
-
-      return url.toString()
-    } catch {
-      throw new InvalidRequestUrlException(request)
-    }
-  }
-
-  /**
    * Parse raw headers into a javascript object.
-   * TODO: This should be extracted up.
    *
    * @param raw The raw state of the request
    * @return The parsed headers

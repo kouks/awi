@@ -1,4 +1,4 @@
-import { Request } from './contracts/Request'
+import { Request } from '@/contracts/Request'
 
 /**
  * The heart of Awi - the interceptor type used in every .use call. It takes the

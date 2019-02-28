@@ -2,8 +2,10 @@ import { Interceptor } from '@/types'
 import { Client } from '@/contracts/Client'
 import { Request } from '@/contracts/Request'
 import { Method } from '@/enumerations/Method'
+import { Executor } from '@/contracts/Executor'
 import { Response } from '@/contracts/Response'
 import { XhrExecutor } from '@/executors/XhrExecutor'
+import { HttpExecutor } from '@/executors/HttpExecutor'
 import { ResponseType } from '@/enumerations/ResponseType'
 
 export class Awi implements Client {
@@ -15,6 +17,9 @@ export class Awi implements Client {
 
   /**
    * The current request of the request object.
+   *
+   * TODO: This might be extracted
+   * TODO: Default headers
    */
   private request: Request = {
     base: '',
@@ -29,7 +34,7 @@ export class Awi implements Client {
       username: null,
       password: null,
     },
-    executor: new XhrExecutor(),
+    executor: this.determineDefaultExecutor(),
   }
 
   /**
@@ -129,6 +134,21 @@ export class Awi implements Client {
     }
 
     return this.use(async req => req.method = method)
+  }
+
+  /**
+   * Determines which executor should be used by default based on the
+   * environment.
+   *
+   * TODO: Test this somehow, also can be improved with Optional<T>
+   *
+   * @return The correct executor instance
+   */
+  private determineDefaultExecutor () : Executor {
+    // typeof window !== 'undefined' && typeof XMLHttpRequest !== 'undefined'
+    return typeof process !== 'undefined' && process.toString() === '[object process]'
+      ? new HttpExecutor()
+      : new XhrExecutor()
   }
 
 }

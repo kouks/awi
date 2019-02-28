@@ -1,7 +1,20 @@
-import { Request } from './contracts/Request'
+import { Request } from '@/contracts/Request'
 
-// TODO: This could implement an interface.
-export class AwiException extends Error {
+export interface HttpException {
+
+  /**
+   * The request that failed.
+   */
+  request: Request
+
+}
+
+export abstract class AwiHttpException extends Error implements HttpException {
+
+  /**
+   * {@inheritdoc}
+   */
+  public abstract request: Request
 
   /**
    * Stringify the provided request for the exception.
@@ -15,57 +28,57 @@ export class AwiException extends Error {
 
 }
 
-export class RequestInvalidatedException extends AwiException {
+export class RequestInvalidatedException extends AwiHttpException {
 
   /**
    * @param request The request in question
    */
   constructor (public request: Request) {
-    super(`The request [${AwiException.stringifyRequest(request)}] has been invalidated.`)
+    super(`The request [${AwiHttpException.stringifyRequest(request)}] has been invalidated.`)
   }
 
 }
 
-export class RequestAbortedException extends AwiException {
+export class RequestAbortedException extends AwiHttpException {
 
   /**
    * @param request The request in question
    */
   constructor (public request: Request) {
-    super(`The request [${AwiException.stringifyRequest(request)}] has been aborted.`)
+    super(`The request [${AwiHttpException.stringifyRequest(request)}] has been aborted.`)
   }
 
 }
 
-export class RequestFailedException extends AwiException {
+export class RequestFailedException extends AwiHttpException {
 
   /**
    * @param request The request in question
    */
   constructor (public request: Request) {
-    super(`The request [${AwiException.stringifyRequest(request)}] has failed.`)
+    super(`The request [${AwiHttpException.stringifyRequest(request)}] has failed.`)
   }
 
 }
 
-export class RequestTimedOutException extends AwiException {
+export class RequestTimedOutException extends AwiHttpException {
 
   /**
    * @param request The request in question
    */
   constructor (public request: Request) {
-    super(`The request [${AwiException.stringifyRequest(request)}] exceeded the [${request.timeout}ms] timeout.`)
+    super(`The request [${AwiHttpException.stringifyRequest(request)}] exceeded the [${request.timeout}ms] timeout.`)
   }
 
 }
 
-export class InvalidRequestUrlException extends AwiException {
+export class InvalidRequestUrlException extends AwiHttpException {
 
   /**
    * @param request The request in question
    */
   constructor (public request: Request) {
-    super(`The request [${AwiException.stringifyRequest(request)}] has an invalid URL.`)
+    super(`The request [${AwiHttpException.stringifyRequest(request)}] has an invalid URL.`)
   }
 
 }

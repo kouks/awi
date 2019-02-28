@@ -17,7 +17,7 @@ export interface Client {
    * Perform the transformed request.
    *
    * @return The desired response
-   * @throws {Error} If somethig goes wrong when executing the request
+   * @throws {HttpException} If somethig goes wrong when executing the request
    */
   send<T extends Response> () : Promise<T>
 
@@ -26,7 +26,7 @@ export interface Client {
    *
    * @param path The path to use for the request
    * @return The desired response
-   * @throws {Error} If somethig goes wrong when executing the request
+   * @throws {HttpException} If somethig goes wrong when executing the request
    */
   get<T extends Response> (path?: string) : Promise<T>
   delete<T extends Response> (path?: string) : Promise<T>
@@ -39,7 +39,7 @@ export interface Client {
    * @param path The path to use for the request
    * @param body The body to be sent with the request
    * @return The desired response
-   * @throws {Error} If somethig goes wrong when executing the request
+   * @throws {HttpException} If somethig goes wrong when executing the request
    */
   post<T extends Response> (path?: string, body?: any) : Promise<T>
   put<T extends Response> (path?: string, body?: any) : Promise<T>
