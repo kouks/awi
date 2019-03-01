@@ -128,7 +128,7 @@ describe('XhrExecutor', () => {
       // Given.
       server.respondWith((req) => {
         req.respond(Status.ACCEPTED, {}, JSON.stringify({
-          ...(req.requestBody as any),
+          body: req.requestBody,
           method: req.method
         }))
       })
@@ -143,7 +143,7 @@ describe('XhrExecutor', () => {
       expect(response.status)
         .to.equals(Status.ACCEPTED)
       expect(response.body)
-        .to.have.property('ok').that.is.true
+        .to.have.property('body').that.equals('{"ok":true}')
       expect(response.body)
         .to.have.property('method').that.equals(Method.POST)
     })

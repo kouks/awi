@@ -9,9 +9,11 @@ export interface Client {
    * disregarded.
    *
    * @param interceptor The function that alters the event.
+   * @param priority The priority of the interceptor, interceptors with higher
+   * priority are executed first
    * @return The instance for chaining
    */
-  use (interceptor: Interceptor) : Client
+  use (interceptor: Interceptor, priority?: number) : Client
 
   /**
    * Perform the transformed request.

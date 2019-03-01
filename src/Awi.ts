@@ -8,12 +8,32 @@ import { XhrExecutor } from '@/executors/XhrExecutor'
 import { HttpExecutor } from '@/executors/HttpExecutor'
 import { ResponseType } from '@/enumerations/ResponseType'
 
+import {
+  normalizeHeaders,
+  handleRequestPayload,
+  assignDefaultAcceptHeader,
+} from '@/interceptors'
+
 export class Awi implements Client {
 
   /**
    * The array of interceptors to be applied.
    */
-  private interceptors: Interceptor[] = []
+  private interceptors: Array<{
+    /**
+     * The interceptor to be used.
+     */
+    interceptor: Interceptor,
+
+    /**
+     * The interceptor's priority.
+     */
+    priority: number,
+  }> = [
+    { interceptor: normalizeHeaders, priority: 1 },
+    { interceptor: assignDefaultAcceptHeader, priority: 1 },
+    { interceptor: handleRequestPayload, priority: 1 },
+  ]
 
   /**
    * The current state of the request object.
@@ -43,8 +63,8 @@ export class Awi implements Client {
   /**
    * {@inheritdoc}
    */
-  public use (interceptor: Interceptor) : Client {
-    this.interceptors.push(interceptor)
+  public use (interceptor: Interceptor, priority: number = 5) : Client {
+    this.interceptors.push({ interceptor, priority })
 
     return this
   }
@@ -53,11 +73,12 @@ export class Awi implements Client {
    * {@inheritdoc}
    */
   public async send<T extends Response> () : Promise<T> {
-    return this.interceptors.reduce(
-      (carry, intercept) => carry.then(() => intercept(this.request)),
-      Promise.resolve(),
-    )
-      .then(() => this.request.executor.send<T>(this.request))
+    return this.interceptors.sort((a, b) => b.priority - a.priority)
+      .map(bundle => bundle.interceptor)
+      .reduce(
+        (carry, intercept) => carry.then(() => intercept(this.request)),
+        Promise.resolve(),
+      ).then(() => this.request.executor.send<T>(this.request))
   }
 
   /**

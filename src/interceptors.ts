@@ -43,8 +43,6 @@ export const handleRequestPayload: Interceptor = async (request) => {
     request.headers['content-type'] = 'application/json;charset=utf-8'
     request.body = JSON.stringify(request.body)
   }
-
-  request.headers['content-length'] = request.body.length
 }
 
 // TODO: Test all of this.

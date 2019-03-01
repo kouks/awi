@@ -46,6 +46,19 @@ describe('Awi client', () => {
       .to.have.property('path').that.equals('resource')
   })
 
+  it('executes interceptors in the right order with priority', async () => {
+    // When.
+    const response = await new Awi()
+      .use(async req => req.executor = new MockExecutor)
+      .use(async req => req.base = 'http://localhost', 5)
+      .use(async req => req.base = 'http://otherhost', 10)
+      .send<MockResponse>()
+
+    // Then.
+    expect(response.body)
+      .to.have.property('base').that.equals('http://localhost')
+  })
+
   it('can discard all interceptors', async () => {
     // When.
     const response = await new Awi()
@@ -123,7 +136,7 @@ describe('Awi client', () => {
       expect(response.body)
         .to.have.property('path').that.equals('resource')
       expect(response.body)
-        .to.have.property('body').that.deep.equals({ body: 'test' })
+        .to.have.property('body').that.equals('{"body":"test"}')
       expect(response.body)
         .to.have.property('method').that.equals(Method.POST)
     })
@@ -138,7 +151,7 @@ describe('Awi client', () => {
       expect(response.body)
         .to.have.property('path').that.equals('resource')
       expect(response.body)
-        .to.have.property('body').that.deep.equals({ body: 'test' })
+        .to.have.property('body').that.equals('{"body":"test"}')
       expect(response.body)
         .to.have.property('method').that.equals(Method.PUT)
     })
@@ -153,7 +166,7 @@ describe('Awi client', () => {
       expect(response.body)
         .to.have.property('path').that.equals('resource')
       expect(response.body)
-        .to.have.property('body').that.deep.equals({ body: 'test' })
+        .to.have.property('body').that.equals('{"body":"test"}')
       expect(response.body)
         .to.have.property('method').that.equals(Method.PATCH)
     })
@@ -167,7 +180,7 @@ class MockExecutor implements Executor {
     return {
       body: request,
       status: Status.OK,
-      headers: new Map
+      headers: {}
     } as T
   }
 }
