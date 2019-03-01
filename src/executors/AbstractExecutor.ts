@@ -57,9 +57,9 @@ export abstract class AbstractExecutor implements Executor {
         `${base === '' ? '' : path === '' ? base : base + '/'}${path}`,
       )
 
-      // Assign authentication credentials.
-      url.username = request.authentication.username || ''
-      url.password = request.authentication.password || ''
+      // Assign authentication credentials if not provided manually.
+      url.username = request.authentication.username || url.username
+      url.password = request.authentication.password || url.password
 
       // Assign desired query parameters.
       Object.keys(request.query)

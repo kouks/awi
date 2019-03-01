@@ -1,9 +1,32 @@
-.editorconfig
-.nyc_output
-.travis.yml
-coverage
-node_modules
-test
+
+# Dependencies and tests
+node_modules/
+coverage/
+test/
+.nyc_output/
+
+# Build files
 tsconfig.dist.json
 tsconfig.json
 tslint.json
+webpack.config.js
+
+# GitHub specific files
+.github/
+CONTRIBUTING.md
+CODE_OF_DONDUCT.md
+
+# Settings and CI
+.travis.yml
+
+# Editors
+.editorconfig
+.vscode/
+.idea/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

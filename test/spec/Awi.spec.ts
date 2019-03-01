@@ -7,6 +7,7 @@ import {
   Request,
   Executor,
   Response,
+  ResponseType,
 } from '@'
 
 describe('Awi client', () => {
@@ -169,6 +170,87 @@ describe('Awi client', () => {
         .to.have.property('body').that.equals('{"body":"test"}')
       expect(response.body)
         .to.have.property('method').that.equals(Method.PATCH)
+    })
+
+  })
+
+  describe('Awi\'s default interceptors', () => {
+
+    it('include an interceptor to normalize header names', async () => {
+      // When.
+      const response = await new Awi()
+        .use(async req => req.executor = new MockExecutor)
+        .use(async req => req.headers['X-Custom-Header'] = 'test')
+        .get<MockResponse>('resource')
+
+      // Then.
+      expect(response.body.headers)
+        .to.have.property('x-custom-header').that.equals('test')
+      expect(response.body.headers)
+        .not.to.have.property('X-Custom-Header')
+    })
+
+    it('include an interceptor to assign a default accept header', async () => {
+      // When.
+      const response = await new Awi()
+        .use(async req => req.executor = new MockExecutor)
+        .use(async req => req.response.type = ResponseType.JSON)
+        .get<MockResponse>('resource')
+
+      // Then.
+      expect(response.body.headers)
+        .to.have.property('accept').that.equals('application/json')
+    })
+
+    it('do not collide with user defined headers', async () => {
+      // When.
+      const response = await new Awi()
+        .use(async req => req.executor = new MockExecutor)
+        .use(async req => req.headers['accept'] = 'application/xml')
+        .get<MockResponse>('resource')
+
+      // Then.
+      expect(response.body.headers)
+        .to.have.property('accept').that.equals('application/xml')
+    })
+
+    it('remove any content headers if no body is passed', async () => {
+      // When.
+      const response = await new Awi()
+        .use(async req => req.executor = new MockExecutor)
+        .use(async req => req.headers['content-type'] = 'application/json')
+        .use(async req => req.headers['content-length'] = '13')
+        .post<MockResponse>('resource')
+
+      // Then.
+      expect(response.body.headers)
+        .not.to.have.property('content-type')
+      expect(response.body.headers)
+        .not.to.have.property('content-ength')
+    })
+
+    it('assign correct content type header if body is passed', async () => {
+      // When.
+      const response = await new Awi()
+        .use(async req => req.executor = new MockExecutor)
+        .use(async req => req.body = { ok: true })
+        .post<MockResponse>('resource')
+
+      // Then.
+      expect(response.body.headers)
+        .to.have.property('content-type').that.equals('application/json;charset=utf-8')
+    })
+
+    it('normalizes the body of the request', async () => {
+      // When.
+      const response = await new Awi()
+        .use(async req => req.executor = new MockExecutor)
+        .use(async req => req.body = { ok: true })
+        .post<MockResponse>('resource')
+
+      // Then.
+      expect(response.body.body)
+        .to.equal('{"ok":true}')
     })
 
   })

@@ -23,18 +23,7 @@ export abstract class AwiHttpException extends Error implements HttpException {
    * @return The stringified version of the request
    */
   protected static stringifyRequest (request: Request) : string {
-    return `${request.method.toString()} ${request.base} ${request.path}`
-  }
-
-}
-
-export class RequestInvalidatedException extends AwiHttpException {
-
-  /**
-   * @param request The request in question
-   */
-  constructor (public request: Request) {
-    super(`The request [${AwiHttpException.stringifyRequest(request)}] has been invalidated.`)
+    return `${String(request.method)} ${request.base} ${request.path}`
   }
 
 }

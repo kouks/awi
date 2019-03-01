@@ -21,24 +21,37 @@ export class HttpExecutor extends AbstractExecutor {
     return new Promise<T>((resolve, reject) => {
 
       const url: URL = this.buildRequestUrl(request)
-      // TODO: Figure this out
-      // const protocol: any = url.protocol === 'https:' ? https : http
       let requestTimedOut: boolean = false
+      let requestTimer: NodeJS.Timeout
 
-      const process: http.ClientRequest = https.request({
+      // Unfortunately, node types don't provide us with declarations for the
+      // http and https libraries.
+      const protocol: any = url.protocol === 'https:' ? https : http
+
+      // We need to remove the authentication header to avoid any collision if
+      // basic auth was provided.
+      if (url.username || url.password) {
+        delete request.headers['authorization']
+      }
+
+      const client: http.ClientRequest = protocol.request({
         hostname: url.hostname,
         protocol: url.protocol,
         path: `${url.pathname}${url.search}`,
-        method: request.method.toString(),
+        method: String(request.method),
         headers: request.headers,
-      }, (response) => {
+        auth: `${url.username}:${url.password}`,
+      }, (response: http.IncomingMessage) => {
         // Do not handle the response if the request has timed out.
         if (requestTimedOut) {
           return
         }
 
+        // Clear the request timer.
+        clearTimeout(requestTimer)
+
         // If the request was aborted, throw an exception.
-        if (process.aborted) {
+        if (client.aborted) {
           throw new RequestAbortedException(request)
         }
 
@@ -62,55 +75,46 @@ export class HttpExecutor extends AbstractExecutor {
           const data: Buffer = Buffer.concat(buffer)
 
           // The default response body is of any type.
-          const body: any = request.response.type === ResponseType.BUFFER
-            ? data
-            : request.response.type === ResponseType.JSON
-            ? JSON.parse(data.toString(request.response.encoding))
-            : data.toString(request.response.encoding)
+          const body: any = {
+            [ResponseType.BUFFER]: data,
+            [ResponseType.JSON]: JSON.parse(data.toString(request.response.encoding) || 'null'),
+            [ResponseType.TEXT]: data.toString(request.response.encoding),
+          }[request.response.type]
 
           this.finalize<T>(
             resolve,
             reject,
             body,
             response.statusCode as Status,
-            this.parseHeaders(response.headers),
+            response.headers as { [key: string]: string },
           )
         })
       })
 
       // Handle any errors during the request.
-      process.on('error', () => {
+      client.on('error', () => {
         if (requestTimedOut) {
           return
         }
 
-        throw new RequestFailedException(request)
+        // Clear the request timer.
+        clearTimeout(requestTimer)
+
+        reject(new RequestFailedException(request))
       })
 
       // Account for the request timeout.
       if (request.timeout > 0) {
-        setTimeout(() => {
+        requestTimer = setTimeout(() => {
           requestTimedOut = true
 
-          throw new RequestTimedOutException(request)
+          reject(new RequestTimedOutException(request))
         }, request.timeout)
       }
 
-      // TODO: Handle streams?
-
       // Send the request.
-      process.end(request.body)
+      client.end(request.body)
     })
-  }
-
-  /**
-   * Parse raw headers into a javascript object.
-   *
-   * @param headers
-   * @return The parsed headers
-   */
-  private parseHeaders (headers: http.IncomingHttpHeaders) : { [key: string]: string } {
-    return headers as { [key: string]: string }
   }
 
 }

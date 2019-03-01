@@ -7,46 +7,38 @@ import {
   RequestFailedException,
   RequestAbortedException,
   RequestTimedOutException,
-  RequestInvalidatedException,
 } from '@/exceptions'
 
 export class XhrExecutor extends AbstractExecutor {
 
   /**
-   * The native http request client.
-   */
-  private xhr: XMLHttpRequest = new XMLHttpRequest()
-
-  /**
    * {@inheritdoc}
    */
   public async send<T extends Response> (request: Request) : Promise<T> {
-    // Check if the XHR is a fresh instance.
-    if (this.xhr.readyState !== this.xhr.UNSENT) {
-      throw new RequestInvalidatedException(request)
-    }
-
     return new Promise<T>((resolve, reject) => {
+      // Create a new instance of the XML HTTP request.
+      const xhr: XMLHttpRequest = new XMLHttpRequest()
+
       // Open the request.
-      this.xhr.open(
-        request.method.toString(),
+      xhr.open(
+        String(request.method),
         this.buildRequestUrl(request).toString(),
         true,
       )
 
       // Assign the timeout, 0 (which is default) is no timeout.
-      this.xhr.timeout = request.timeout
+      xhr.timeout = request.timeout
 
       // Set the response type.
-      this.xhr.responseType = request.response.type.toString() as XMLHttpRequestResponseType
+      xhr.responseType = String(request.response.type) as XMLHttpRequestResponseType
 
       // Assign headers to the request.
       Object.keys(request.headers)
-        .forEach(key => this.xhr.setRequestHeader(key, request.headers[key]))
+        .forEach(key => xhr.setRequestHeader(key, request.headers[key]))
 
       // Assign a listener for the request state change.
-      this.xhr.onreadystatechange = () => {
-        if (this.xhr.readyState !== this.xhr.DONE) {
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState !== xhr.DONE) {
           return
         }
 
@@ -55,28 +47,23 @@ export class XhrExecutor extends AbstractExecutor {
         this.finalize<T>(
           resolve,
           reject,
-          this.xhr.response,
-          this.xhr.status as Status,
-          this.parseHeaders(this.xhr),
+          xhr.response,
+          xhr.status as Status,
+          this.parseHeaders(xhr),
         )
       }
 
       // When the request is explicitly aborted.
-      this.xhr.onabort = () => {
-        throw new RequestAbortedException(request)
-      }
+      xhr.onabort = () => reject(new RequestAbortedException(request))
 
       // When the request failed due to network issues.
-      this.xhr.onerror = () => {
-        throw new RequestFailedException(request)
-      }
+      xhr.onerror = () => reject(new RequestFailedException(request))
 
       // When the request failed due to a timeout.
-      this.xhr.ontimeout = () => {
-        throw new RequestTimedOutException(request)
-      }
+      xhr.ontimeout = () => reject(new RequestTimedOutException(request))
 
-      this.xhr.send(request.body)
+      // Send the request with the desired body.
+      xhr.send(request.body)
     })
   }
 

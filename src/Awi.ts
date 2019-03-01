@@ -39,7 +39,6 @@ export class Awi implements Client {
    * The current state of the request object.
    *
    * TODO: This might be extracted
-   * TODO: Default headers
    */
   private request: Request = {
     base: '',
@@ -57,7 +56,7 @@ export class Awi implements Client {
       type: ResponseType.JSON,
       encoding: 'utf8',
     },
-    executor: this.determineDefaultExecutor(),
+    executor: new HttpExecutor(), // TODO: Replace for None.
   }
 
   /**
@@ -158,22 +157,6 @@ export class Awi implements Client {
     }
 
     return this.use(async req => req.method = method)
-  }
-
-  /**
-   * Determines which executor should be used by default based on the
-   * environment.
-   *
-   * TODO: Test this somehow, also can be improved with Optional<T>
-   * TODO: Can be a default interceptor
-   *
-   * @return The correct executor instance
-   */
-  private determineDefaultExecutor () : Executor {
-    // typeof window !== 'undefined' && typeof XMLHttpRequest !== 'undefined'
-    return typeof process !== 'undefined' && process.toString() === '[object process]'
-      ? new HttpExecutor()
-      : new XhrExecutor()
   }
 
 }

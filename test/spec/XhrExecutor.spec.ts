@@ -6,14 +6,13 @@ import {
   Method,
   Status,
   Response,
-  XhrExecutor,
   ResponseType,
   RequestFailedException,
   RequestAbortedException,
   RequestTimedOutException,
-  InvalidRequestUrlException,
-  RequestInvalidatedException,
 } from '@'
+
+import { XhrExecutor } from '@/executors/XhrExecutor'
 
 describe('XhrExecutor', () => {
   let server: sinon.SinonFakeServer
@@ -36,8 +35,7 @@ describe('XhrExecutor', () => {
       })
 
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
+      const response = await xhr()
         .get<Response>('http://server.api')
 
       // Then.
@@ -56,8 +54,7 @@ describe('XhrExecutor', () => {
       })
 
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
+      const response = await xhr()
         .use(async req => req.headers['accept'] = 'application/json')
         .get<Response>('http://server.api')
 
@@ -75,8 +72,7 @@ describe('XhrExecutor', () => {
       })
 
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
+      const response = await xhr()
         .use(async req => req.authentication.username = 'awi')
         .use(async req => req.authentication.password = 'secret')
         .get<Response>('http://server.api')
@@ -95,8 +91,7 @@ describe('XhrExecutor', () => {
       })
 
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
+      const response = await xhr()
         .use(async req => req.timeout = 1000)
         .get<Response>('http://server.api')
 
@@ -114,8 +109,7 @@ describe('XhrExecutor', () => {
       })
 
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
+      const response = await xhr()
         .use(async req => req.response.type = ResponseType.JSON)
         .get<Response>('http://server.api')
 
@@ -134,102 +128,17 @@ describe('XhrExecutor', () => {
       })
 
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
+      const response = await xhr()
         .use(async req => req.body = { ok: true })
         .post<Response>('http://server.api')
 
       // Then.
       expect(response.status)
-        .to.equals(Status.ACCEPTED)
+        .to.equal(Status.ACCEPTED)
       expect(response.body)
         .to.have.property('body').that.equals('{"ok":true}')
       expect(response.body)
         .to.have.property('method').that.equals(Method.POST)
-    })
-
-    it('correctly builds the url', async () => {
-      // Given.
-      server.respondWith((req) => {
-        req.respond(Status.OK, {}, JSON.stringify({ url: req.url }))
-      })
-
-      // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
-        .use(async req => req.base = 'http://server.api')
-        .get('todos')
-
-      // Then.
-      expect(response.body)
-        .to.have.property('url').that.equals('http://server.api/todos')
-    })
-
-    it('correctly builds the url when base is omitted', async () => {
-      // Given.
-      server.respondWith((req) => {
-        req.respond(Status.OK, {}, JSON.stringify({ url: req.url }))
-      })
-
-      // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
-        .get('http://server.api/todos')
-
-      // Then.
-      expect(response.body)
-        .to.have.property('url').that.equals('http://server.api/todos')
-    })
-
-    it('correctly builds the url when path is omitted', async () => {
-      // Given.
-      server.respondWith((req) => {
-        req.respond(Status.OK, {}, JSON.stringify({ url: req.url }))
-      })
-
-      // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
-        .use(async req => req.base = 'http://server.api/todos')
-        .get()
-
-      // Then.
-      expect(response.body)
-        .to.have.property('url').that.equals('http://server.api/todos')
-    })
-
-    it('correctly assigns query parameters', async () => {
-      // Given.
-      server.respondWith((req) => {
-        req.respond(Status.OK, {}, JSON.stringify({ url: req.url }))
-      })
-
-      // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
-        .use(async req => req.query = { awi: 'awesome', key: '123' })
-        .get('http://server.api')
-
-      // Then.
-      expect(response.body)
-        .to.have.property('url').that.equals('http://server.api/?awi=awesome&key=123')
-    })
-
-    it('correctly encodes query parameters', async () => {
-      // Given.
-      server.respondWith((req) => {
-        req.respond(Status.OK, {}, JSON.stringify({ url: req.url }))
-      })
-
-      // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
-        .use(async req => req.query = { encoded: '&awi=awesome' })
-        .get('http://server.api')
-
-      // Then.
-      expect(response.body)
-        .to.have.property('url').that.equals('http://server.api/?encoded=%26awi%3Dawesome')
     })
 
   })
@@ -243,8 +152,7 @@ describe('XhrExecutor', () => {
       })
 
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
+      const response = await xhr()
         .get<Response>('http://server.api')
 
       // Then.
@@ -259,8 +167,7 @@ describe('XhrExecutor', () => {
       })
 
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
+      const response = await xhr()
         .use(async req => req.response.type = ResponseType.TEXT)
         .get<Response>('http://server.api')
 
@@ -276,8 +183,7 @@ describe('XhrExecutor', () => {
       })
 
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
+      const response = await xhr()
         .get<Response>('http://server.api')
 
       // Then.
@@ -292,8 +198,7 @@ describe('XhrExecutor', () => {
       })
 
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
+      const response = await xhr()
         .get<Response>('http://server.api')
 
       // Then.
@@ -312,8 +217,7 @@ describe('XhrExecutor', () => {
       })
 
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
+      const response = await xhr()
         .get<Response>('http://server.api')
 
       // Then.
@@ -331,8 +235,7 @@ describe('XhrExecutor', () => {
       })
 
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new XhrExecutor)
+      const response = await xhr()
         .get<Response>('http://server.api')
 
       // Then.
@@ -347,8 +250,7 @@ describe('XhrExecutor', () => {
       })
 
       // When.
-      const process = new Awi()
-        .use(async req => req.executor = new XhrExecutor)
+      const process = xhr()
         .get<Response>('http://server.api')
 
       // Then.
@@ -361,89 +263,54 @@ describe('XhrExecutor', () => {
 
   describe('XhrExecutor\'s exception handler', () => {
 
-    it('rejects when the request URL is invalid', async () => {
+    it('rejects when a request fails due to network issues', async () => {
+      // Given.
+      server.respondWith((req) => {
+        req.onerror()
+      })
+
       // When.
-      const process = new Awi()
-        .use(async req => req.executor = new XhrExecutor)
-        .get<Response>('invalid-url')
+      const client = xhr()
+        .get<Response>('http://server.api')
 
       // Then.
-      await expect(process)
-        .to.eventually.be.rejectedWith(InvalidRequestUrlException)
-        .and.to.satisfy((e: InvalidRequestUrlException) => e.request.path === 'invalid-url')
+      await expect(client)
+        .to.eventually.be.rejectedWith(RequestFailedException)
     })
 
-    it('rejects when a request fails due to network issues', (done) => {
+    it('rejects when a request fails due to being aborted', async () => {
       // Given.
       server.respondWith((req) => {
-        // Then.
-        try {
-          expect(req.onerror).to.throw(RequestFailedException)
-          done()
-        } catch (e) { done(e) }
+        (req as any).onabort()
       })
 
       // When.
-      new Awi()
-        .use(async req => req.executor = new XhrExecutor)
+      const client = xhr()
         .get<Response>('http://server.api')
-        .catch(() => undefined)
-    })
-
-    it('rejects when a request fails due to being aborted', (done) => {
-      // Given.
-      server.respondWith((req) => {
-        // Then.
-        try {
-          expect((req as any).onabort).to.throw(RequestAbortedException)
-          done()
-        } catch (e) { done(e) }
-      })
-
-      // When.
-      new Awi()
-        .use(async req => req.executor = new XhrExecutor)
-        .get<Response>('http://server.api')
-        .catch(() => undefined)
-    })
-
-    it('rejects when a request fails due to a timeout', (done) => {
-      // Given.
-      server.respondWith((req) => {
-        // Then.
-        try {
-          expect((req as any).ontimeout).to.throw(RequestTimedOutException)
-          done()
-        } catch (e) { done(e) }
-      })
-
-      // When.
-      new Awi()
-        .use(async req => req.executor = new XhrExecutor)
-        .get<Response>('http://server.api')
-        .catch(() => undefined)
-    })
-
-    it('does not allow to reuse a request', async () => {
-      // Given.
-      server.respondWith((req) => {
-        req.respond(Status.OK, {}, '')
-      })
-
-      const executor = new XhrExecutor
-      const client = new Awi()
-        .use(async req => req.executor = executor)
-
-      await client.get<Response>('http://server.api')
-
-      // When.
-      const process = client.get<Response>('http://server.api')
 
       // Then.
-      await expect(process)
-        .to.eventually.be.rejectedWith(RequestInvalidatedException)
+      await expect(client)
+        .to.eventually.be.rejectedWith(RequestAbortedException)
+    })
+
+    it('rejects when a request fails due to a timeout', async () => {
+      // Given.
+      server.respondWith((req) => {
+        (req as any).ontimeout()
+      })
+
+      // When.
+      const client = xhr()
+        .get<Response>('http://server.api')
+
+      // Then.
+      await expect(client)
+        .to.eventually.be.rejectedWith(RequestTimedOutException)
     })
 
   })
 
 })
+
+const xhr = () => new Awi()
+  .use(async req => req.executor = new XhrExecutor)
