@@ -3,8 +3,8 @@ import * as https from 'https'
 import { Request } from '@/contracts/Request'
 import { Status } from '@/enumerations/Status'
 import { Response } from '@/contracts/Response'
-import { AbstractExecutor } from './AbstractExecutor'
 import { ResponseType } from '@/enumerations/ResponseType'
+import { AbstractExecutor } from '@/executors/AbstractExecutor'
 
 import {
   RequestFailedException,
@@ -22,7 +22,7 @@ export class HttpExecutor extends AbstractExecutor {
 
       const url: URL = this.buildRequestUrl(request)
       // TODO: Figure this out
-      // const protocol = url.protocol === 'https:' ? https : http
+      // const protocol: any = url.protocol === 'https:' ? https : http
       let requestTimedOut: boolean = false
 
       const process: http.ClientRequest = https.request({
@@ -30,6 +30,7 @@ export class HttpExecutor extends AbstractExecutor {
         protocol: url.protocol,
         path: `${url.pathname}${url.search}`,
         method: request.method.toString(),
+        headers: request.headers,
       }, (response) => {
         // Do not handle the response if the request has timed out.
         if (requestTimedOut) {
@@ -60,10 +61,17 @@ export class HttpExecutor extends AbstractExecutor {
         response.on('end', () => {
           const data: Buffer = Buffer.concat(buffer)
 
-          this.finalize(
+          // The default response body is of any type.
+          const body: any = request.response.type === ResponseType.BUFFER
+            ? data
+            : request.response.type === ResponseType.JSON
+            ? JSON.parse(data.toString(request.response.encoding))
+            : data.toString(request.response.encoding)
+
+          this.finalize<T>(
             resolve,
             reject,
-            request.responseType === ResponseType.BUFFER ? data : data.toString('utf8'), // TODO: Encoding config.
+            body,
             response.statusCode as Status,
             this.parseHeaders(response.headers),
           )
@@ -97,13 +105,12 @@ export class HttpExecutor extends AbstractExecutor {
 
   /**
    * Parse raw headers into a javascript object.
-   * TODO: Implement this
    *
    * @param headers
    * @return The parsed headers
    */
-  private parseHeaders (headers: http.IncomingHttpHeaders) : Map<string, string> {
-    return new Map()
+  private parseHeaders (headers: http.IncomingHttpHeaders) : { [key: string]: string } {
+    return headers as { [key: string]: string }
   }
 
 }

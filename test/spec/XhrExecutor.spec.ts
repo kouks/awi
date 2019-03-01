@@ -58,7 +58,7 @@ describe('XhrExecutor', () => {
       // When.
       const response = await new Awi()
         .use(async req => req.executor = new XhrExecutor)
-        .use(async req => req.headers.set('accept', 'application/json'))
+        .use(async req => req.headers['accept'] = 'application/json')
         .get<Response>('http://server.api')
 
       // Then.
@@ -116,7 +116,7 @@ describe('XhrExecutor', () => {
       // When.
       const response = await new Awi()
         .use(async req => req.executor = new XhrExecutor)
-        .use(async req => req.responseType = ResponseType.JSON)
+        .use(async req => req.response.type = ResponseType.JSON)
         .get<Response>('http://server.api')
 
       // Then.
@@ -207,8 +207,7 @@ describe('XhrExecutor', () => {
       // When.
       const response = await new Awi()
         .use(async req => req.executor = new XhrExecutor)
-        .use(async req => req.query.set('awi', 'awesome'))
-        .use(async req => req.query.set('key', '123'))
+        .use(async req => req.query = { awi: 'awesome', key: '123' })
         .get('http://server.api')
 
       // Then.
@@ -225,7 +224,7 @@ describe('XhrExecutor', () => {
       // When.
       const response = await new Awi()
         .use(async req => req.executor = new XhrExecutor)
-        .use(async req => req.query.set('encoded', '&awi=awesome'))
+        .use(async req => req.query = { encoded: '&awi=awesome' })
         .get('http://server.api')
 
       // Then.
@@ -262,7 +261,7 @@ describe('XhrExecutor', () => {
       // When.
       const response = await new Awi()
         .use(async req => req.executor = new XhrExecutor)
-        .use(async req => req.responseType = ResponseType.TEXT)
+        .use(async req => req.response.type = ResponseType.TEXT)
         .get<Response>('http://server.api')
 
       // Then.
@@ -282,7 +281,7 @@ describe('XhrExecutor', () => {
         .get<Response>('http://server.api')
 
       // Then.
-      expect(response.headers.get('content-type'))
+      expect(response.headers['content-type'])
         .to.equal('application/json')
     })
 
@@ -298,7 +297,7 @@ describe('XhrExecutor', () => {
         .get<Response>('http://server.api')
 
       // Then.
-      expect(response.headers.get('content-type'))
+      expect(response.headers['content-type'])
         .to.equal('application/json')
     })
 
@@ -318,7 +317,7 @@ describe('XhrExecutor', () => {
         .get<Response>('http://server.api')
 
       // Then.
-      expect(response.headers.get('cache-control'))
+      expect(response.headers['cache-control'])
         .to.equal('max-age=86400, public, immutable')
     })
 
@@ -337,7 +336,7 @@ describe('XhrExecutor', () => {
         .get<Response>('http://server.api')
 
       // Then.
-      expect(response.headers.get('content-type'))
+      expect(response.headers['content-type'])
         .to.equal('application/json')
     })
 

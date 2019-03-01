@@ -17,6 +17,6 @@ export interface Response {
   /**
    * The response headers.
    */
-  headers: Map<string, string>
+  headers: { [key: string]: string }
 
 }

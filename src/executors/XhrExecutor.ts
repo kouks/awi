@@ -1,8 +1,7 @@
 import { Request } from '@/contracts/Request'
 import { Status } from '@/enumerations/Status'
 import { Response } from '@/contracts/Response'
-import { AbstractExecutor } from './AbstractExecutor'
-import { ResponseType } from '@/enumerations/ResponseType'
+import { AbstractExecutor } from '@/executors/AbstractExecutor'
 
 import {
   RequestFailedException,
@@ -39,11 +38,11 @@ export class XhrExecutor extends AbstractExecutor {
       this.xhr.timeout = request.timeout
 
       // Set the response type.
-      this.xhr.responseType = request.responseType.toString() as XMLHttpRequestResponseType
+      this.xhr.responseType = request.response.type.toString() as XMLHttpRequestResponseType
 
       // Assign headers to the request.
-      Array.from(request.headers.entries())
-        .forEach(([key, value]) => this.xhr.setRequestHeader(key, value))
+      Object.keys(request.headers)
+        .forEach(key => this.xhr.setRequestHeader(key, request.headers[key]))
 
       // Assign a listener for the request state change.
       this.xhr.onreadystatechange = () => {
@@ -52,10 +51,11 @@ export class XhrExecutor extends AbstractExecutor {
         }
 
         // TODO: Handle body in mutations?
-        this.finalize(
+        // TODO: Response type stream?
+        this.finalize<T>(
           resolve,
           reject,
-          request.responseType === ResponseType.TEXT ? this.xhr.responseText : this.xhr.response,
+          this.xhr.response,
           this.xhr.status as Status,
           this.parseHeaders(this.xhr),
         )
@@ -86,8 +86,8 @@ export class XhrExecutor extends AbstractExecutor {
    * @param raw The raw state of the request
    * @return The parsed headers
    */
-  private parseHeaders (raw: XMLHttpRequest) : Map<string, string> {
-    // Headers that we do not want to concatenate.
+  private parseHeaders (raw: XMLHttpRequest) : { [key: string]: string } {
+    // Headers that we do not want to concatenate. Thanks axios.
     const doNotConcatenate: string[] = [
       'age', 'authorization', 'content-length', 'content-type', 'etag',
       'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
@@ -96,7 +96,7 @@ export class XhrExecutor extends AbstractExecutor {
     ]
 
     // Initialize the header map.
-    const headers: Map<string, string> = new Map()
+    const headers: { [key: string]: string } = {}
 
     // Populate the header map.
     raw.getAllResponseHeaders().split('\n')
@@ -111,13 +111,13 @@ export class XhrExecutor extends AbstractExecutor {
         const value: string = header[1].trim()
 
         // If the header already exists and we do not want to concatenate, skip.
-        if (headers.has(key) && doNotConcatenate.find(i => i === key) !== undefined) {
+        if (headers[key] !== undefined && doNotConcatenate.find(i => i === key) !== undefined) {
           return
         }
 
-        return headers.has(key)
-          ? headers.set(key, `${headers.get(key)}, ${value}`)
-          : headers.set(key, value)
+        return headers[key] === undefined
+          ? headers[key] = value
+          : headers[key] = `${headers[key]}, ${value}`
       })
 
     return headers

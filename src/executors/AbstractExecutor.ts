@@ -25,7 +25,7 @@ export abstract class AbstractExecutor implements Executor {
     reject: (response?: T | PromiseLike<T>) => void,
     body: any,
     status: Status,
-    headers: Map<string, string>,
+    headers: { [key: string]: string },
   ) : void {
     const response: T = {
       body,
@@ -62,8 +62,8 @@ export abstract class AbstractExecutor implements Executor {
       url.password = request.authentication.password || ''
 
       // Assign desired query parameters.
-      Array.from(request.query.entries())
-        .forEach(([key, value]) => url.searchParams.set(key, value))
+      Object.keys(request.query)
+        .forEach(key => url.searchParams.set(key, request.query[key]))
 
       return url
     } catch {

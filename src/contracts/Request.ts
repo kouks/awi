@@ -28,22 +28,17 @@ export interface Request {
   /**
    * The query added to the request.
    */
-  query: Map<string, string>
+  query: { [key: string]: string }
 
   /**
    * The headers sent with the request.
    */
-  headers: Map<string, string>
+  headers: { [key: string]: string }
 
   /**
    * The request timeout in milliseconds.
    */
   timeout: number
-
-  /**
-   * The desired response type.
-   */
-  responseType: ResponseType
 
   /**
    * The authentication object.
@@ -58,6 +53,21 @@ export interface Request {
      * The password to be used for the authentication.
      */
     password: string | null,
+  }
+
+  /**
+   * The response configuration object.
+   */
+  response: {
+    /**
+     * The desired response type.
+     */
+    type: ResponseType,
+
+    /**
+     * The desired response encoding.
+     */
+    encoding: string,
   }
 
   /**

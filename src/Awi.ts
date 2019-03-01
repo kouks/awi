@@ -16,7 +16,7 @@ export class Awi implements Client {
   private interceptors: Interceptor[] = []
 
   /**
-   * The current request of the request object.
+   * The current state of the request object.
    *
    * TODO: This might be extracted
    * TODO: Default headers
@@ -26,13 +26,16 @@ export class Awi implements Client {
     path: '',
     method: Method.GET,
     body: null,
-    query: new Map(),
-    headers: new Map(),
+    query: {},
+    headers: {},
     timeout: 0,
-    responseType: ResponseType.JSON,
     authentication: {
       username: null,
       password: null,
+    },
+    response: {
+      type: ResponseType.JSON,
+      encoding: 'utf8',
     },
     executor: this.determineDefaultExecutor(),
   }
@@ -141,6 +144,7 @@ export class Awi implements Client {
    * environment.
    *
    * TODO: Test this somehow, also can be improved with Optional<T>
+   * TODO: Can be a default interceptor
    *
    * @return The correct executor instance
    */

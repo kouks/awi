@@ -5,6 +5,7 @@ import {
   Method,
   Status,
   Response,
+  XhrExecutor,
   HttpExecutor,
   ResponseType,
   RequestFailedException,
@@ -20,9 +21,7 @@ describe('HttpExecutor', () => {
 
     const response = await new Awi()
       .use(async req => req.executor = new HttpExecutor)
-      .get('https://jsonplaceholder.typicode.com/todos/1')
-
-    console.log(response)
+      .post('https://jsonplaceholder.typicode.com/todos')
 
   })
 
