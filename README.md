@@ -192,7 +192,12 @@ const response: Response = await auth()
 console.assert(response.status === 200))
 ```
 
-### Why Awi?
+### API Reference
+
+All of Awi's functionality is summed up on the
+[wiki page](https://github.com/kouks/awi/wiki/API-Reference).
+
+## Why Awi?
 
 **It's lightweight**
 
@@ -214,11 +219,6 @@ templates for your requests from scratch!
 
 Awi is also open-source, so should you be missing any features that would make
 your life easier, feel free to contribute.
-
-### API Reference
-
-All of Awi's functionality is summed up on the
-[wiki page](https://github.com/kouks/awi/wiki/API-Reference).
 
 ## Credits
 
