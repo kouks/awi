@@ -71,3 +71,18 @@ export class InvalidRequestUrlException extends AwiHttpException {
   }
 
 }
+
+export abstract class AwiConfigurationException extends Error {
+  //
+}
+
+export class NoExecutorProvidedException extends AwiConfigurationException {
+
+  /**
+   * Exception constructor.
+   */
+  constructor () {
+    super('There is no valid executor assigned to the request configuration.')
+  }
+
+}
