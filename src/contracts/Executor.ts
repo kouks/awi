@@ -8,7 +8,7 @@ export interface Executor {
    *
    * @param request The request object to use
    * @return The desired response
-   * @throws {HttpException} If somethig goes wrong when executing the request
+   * @throws {HttpException} If something goes wrong when executing the request
    */
   send<T extends Response> (request: Request) : Promise<T>
 
