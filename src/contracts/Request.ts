@@ -1,5 +1,6 @@
-import { Executor } from '@/contracts/Executor'
 import { Method } from '@/enumerations/Method'
+import { Executor } from '@/contracts/Executor'
+import { Optional } from '@bausano/data-structures'
 import { ResponseType } from '@/enumerations/ResponseType'
 
 export interface Request {
@@ -28,22 +29,17 @@ export interface Request {
   /**
    * The query added to the request.
    */
-  query: Map<string, string>
+  query: { [key: string]: string }
 
   /**
    * The headers sent with the request.
    */
-  headers: Map<string, string>
+  headers: { [key: string]: string }
 
   /**
    * The request timeout in milliseconds.
    */
   timeout: number
-
-  /**
-   * The desired response type.
-   */
-  responseType: ResponseType
 
   /**
    * The authentication object.
@@ -61,8 +57,23 @@ export interface Request {
   }
 
   /**
+   * The response configuration object.
+   */
+  response: {
+    /**
+     * The desired response type.
+     */
+    type: ResponseType,
+
+    /**
+     * The desired response encoding.
+     */
+    encoding: string,
+  }
+
+  /**
    * The executor instance to perform the request.
    */
-  executor: Executor
+  executor: Optional<Executor>
 
 }

@@ -2,41 +2,68 @@ import { Interceptor } from '@/types'
 import { Client } from '@/contracts/Client'
 import { Request } from '@/contracts/Request'
 import { Method } from '@/enumerations/Method'
+import { None } from '@bausano/data-structures'
 import { Response } from '@/contracts/Response'
-import { XhrExecutor } from '@/executors/XhrExecutor'
 import { ResponseType } from '@/enumerations/ResponseType'
+
+import {
+  normalizeHeaders,
+  handleRequestPayload,
+  determineDefaultExecutor,
+  assignDefaultAcceptHeader,
+} from '@/interceptors'
 
 export class Awi implements Client {
 
   /**
    * The array of interceptors to be applied.
    */
-  private interceptors: Interceptor[] = []
+  private interceptors: Array<{
+    /**
+     * The interceptor to be used.
+     */
+    interceptor: Interceptor,
+
+    /**
+     * The interceptor's priority.
+     */
+    priority: number,
+  }> = [
+    { interceptor: determineDefaultExecutor, priority: 10 },
+    { interceptor: normalizeHeaders, priority: 1 },
+    { interceptor: assignDefaultAcceptHeader, priority: 1 },
+    { interceptor: handleRequestPayload, priority: 1 },
+  ]
 
   /**
-   * The current request of the request object.
+   * The current state of the request object.
+   *
+   * TODO: This might be extracted
    */
   private request: Request = {
     base: '',
     path: '',
     method: Method.GET,
     body: null,
-    query: new Map(),
-    headers: new Map(),
+    query: {},
+    headers: {},
     timeout: 0,
-    responseType: ResponseType.JSON,
     authentication: {
       username: null,
       password: null,
     },
-    executor: new XhrExecutor(),
+    response: {
+      type: ResponseType.JSON,
+      encoding: 'utf8',
+    },
+    executor: new None(),
   }
 
   /**
    * {@inheritdoc}
    */
-  public use (interceptor: Interceptor) : Client {
-    this.interceptors.push(interceptor)
+  public use (interceptor: Interceptor, priority: number = 5) : Client {
+    this.interceptors.push({ interceptor, priority })
 
     return this
   }
@@ -45,11 +72,13 @@ export class Awi implements Client {
    * {@inheritdoc}
    */
   public async send<T extends Response> () : Promise<T> {
-    return this.interceptors.reduce(
-      (carry, intercept) => carry.then(() => intercept(this.request)),
-      Promise.resolve(),
-    )
-      .then(() => this.request.executor.send<T>(this.request))
+    return this.interceptors.sort((a, b) => b.priority - a.priority)
+      .map(bundle => bundle.interceptor)
+      .reduce(
+        (carry, intercept) => carry.then(() => intercept(this.request)),
+        Promise.resolve(),
+      // TODO: Custom exception.
+      ).then(() => this.request.executor.unwrap().send<T>(this.request))
   }
 
   /**
@@ -99,15 +128,6 @@ export class Awi implements Client {
    */
   public async patch<T extends Response> (path?: string, body?: any) : Promise<T> {
     return this.prepare(Method.PATCH, path, body).send<T>()
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public discard () : Client {
-    this.interceptors = []
-
-    return this
   }
 
   /**

@@ -1,10 +1,18 @@
 const basePath = dir => require('path').join(__dirname, dir)
-const FriendlyErrors = require('friendly-errors-webpack-plugin')
+const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
+const IgnorePlugin = require('webpack').IgnorePlugin
 
 module.exports = {
+  node: {
+    process: false,
+    Buffer: false,
+  },
   devtool: 'source-map',
   plugins: [
-    new FriendlyErrors
+    new FriendlyErrorsPlugin(),
+    new IgnorePlugin({
+      resourceRegExp: /^https?/
+    })
   ],
   entry: {
     awi: './src/index.ts',
@@ -17,7 +25,7 @@ module.exports = {
     libraryTarget: 'umd'
   },
   resolve: {
-    extensions: ['.ts'],
+    extensions: ['.ts', '.js'],
     alias: {
       '@': basePath('src')
     }

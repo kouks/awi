@@ -8,6 +8,7 @@
     "max-classes-per-file": false,
     "max-line-length": { "options": [120] },
     "member-ordering": [true, "instance-sandwich"],
+    "no-string-literal": false,
     "object-literal-sort-keys": false,
     "ordered-imports": false,
     "quotemark": [true, "single"],
