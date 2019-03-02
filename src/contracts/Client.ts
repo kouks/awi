@@ -1,5 +1,6 @@
 import { Interceptor } from '@/types'
 import { Response } from '@/contracts/Response'
+import { Optional } from '@bausano/data-structures'
 
 export interface Client {
 
@@ -46,5 +47,24 @@ export interface Client {
   post<T extends Response> (path?: string, body?: any) : Promise<T>
   put<T extends Response> (path?: string, body?: any) : Promise<T>
   patch<T extends Response> (path?: string, body?: any) : Promise<T>
+
+  /**
+   * A request helper that only returns the body of the response.
+   *
+   * @param path The path to use for the request
+   * @return The desired response
+   * @throws {HttpException} If somethig goes wrong when executing the request
+   */
+  body<T> (path?: string) : Promise<T>
+
+  /**
+   * A request helper that only returns the body of the response and instead of
+   * rejecting the promise, it resolves an `Optional<T>`.
+   *
+   * @param path The path to use for the request
+   * @return The desired response wrapped in an optional
+   * @throws {HttpException} If somethig goes wrong when executing the request
+   */
+  optional<T> (path?: string) : Promise<Optional<T>>
 
 }

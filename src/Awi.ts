@@ -2,9 +2,9 @@ import { Interceptor } from '@/types'
 import { Client } from '@/contracts/Client'
 import { Request } from '@/contracts/Request'
 import { Method } from '@/enumerations/Method'
-import { None } from '@bausano/data-structures'
 import { Response } from '@/contracts/Response'
 import { ResponseType } from '@/enumerations/ResponseType'
+import { Optional, Some, None } from '@bausano/data-structures'
 
 import {
   normalizeHeaders,
@@ -12,6 +12,10 @@ import {
   determineDefaultExecutor,
   assignDefaultAcceptHeader,
 } from '@/interceptors'
+
+import {
+  NoExecutorProvidedException,
+} from './exceptions'
 
 export class Awi implements Client {
 
@@ -77,8 +81,7 @@ export class Awi implements Client {
       .reduce(
         (carry, intercept) => carry.then(() => intercept(this.request)),
         Promise.resolve(),
-      // TODO: Custom exception.
-      ).then(() => this.request.executor.unwrap().send<T>(this.request))
+      ).then(() => this.request.executor.expect(new NoExecutorProvidedException()).send<T>(this.request))
   }
 
   /**
@@ -128,6 +131,33 @@ export class Awi implements Client {
    */
   public async patch<T extends Response> (path?: string, body?: any) : Promise<T> {
     return this.prepare(Method.PATCH, path, body).send<T>()
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public async body<T> (path?: string) : Promise<T> {
+    if (path !== undefined) {
+      this.use(async req => req.path = path)
+    }
+
+    return this.send<{ body: T } & Response>()
+      .then(response => response.body)
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public async optional<T> (path?: string) : Promise<Optional<T>> {
+    return this.body<T>(path)
+      .then(body => new Some<T>(body))
+      .catch((error) => {
+        if (error instanceof Error) {
+          throw error
+        }
+
+        return new None<T>()
+      })
   }
 
   /**

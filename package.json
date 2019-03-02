@@ -31,7 +31,7 @@
     "@types/chai-as-promised": "^7.1.0",
     "@types/mocha": "^5.2.5",
     "@types/nock": "^9.3.1",
-    "@types/node": "^10.5.5",
+    "@types/node": "^10.12.29",
     "@types/sinon": "^4.3.3",
     "@zerollup/ts-transform-paths": "^1.6.5",
     "chai": "^4.2.0",
@@ -64,6 +64,6 @@
     "all": true
   },
   "dependencies": {
-    "@bausano/data-structures": "^1.0.0"
+    "@bausano/data-structures": "^1.0.1"
   }
 }

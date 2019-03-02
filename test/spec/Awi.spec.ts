@@ -8,9 +8,10 @@ import {
   Executor,
   Response,
   ResponseType,
+  RequestFailedException,
 } from '@'
 
-import { Some } from '@bausano/data-structures'
+import { Some, None } from '@bausano/data-structures'
 
 describe('Awi client', () => {
 
@@ -151,6 +152,48 @@ describe('Awi client', () => {
         .to.have.property('method').that.equals(Method.PATCH)
     })
 
+    it('has a working body helper', async () => {
+      // When.
+      const body = await mock()
+        .body<Request>('resource')
+
+      // Then.
+      expect(body)
+        .to.have.property('path').that.equals('resource')
+    })
+
+    it('has a working optional helper', async () => {
+      // When.
+      const body = await mock()
+        .optional<Request>('resource')
+
+      // Then.
+      expect(body)
+        .to.be.an.instanceOf(Some)
+      expect(body.unwrap())
+        .to.have.property('path').that.equals('resource')
+    })
+
+    it('has a working optional helper that returns none on 400+ requests', async () => {
+      // When.
+      const body = await mock()
+        .optional<Request>('invalid')
+
+      // Then.
+      expect(body)
+        .to.be.an.instanceOf(None)
+    })
+
+    it('has a working optional helper that rejects if requets errored', async () => {
+      // When.
+      const client = mock()
+        .optional<Request>('error')
+
+      // Then.
+      await expect(client)
+        .to.eventually.be.rejectedWith(RequestFailedException)
+    })
+
   })
 
   describe('Awi\'s default interceptors', () => {
@@ -235,6 +278,18 @@ const mock = () => new Awi()
 
 class MockExecutor implements Executor {
   async send<T extends Response> (request: Request) : Promise<T> {
+    if (request.path === 'error') {
+      throw new RequestFailedException(request)
+    }
+
+    if (request.path === 'invalid') {
+      throw {
+        body: request,
+        status: Status.BAD_REQUEST,
+        headers: {}
+      } as T
+    }
+
     return {
       body: request,
       status: Status.OK,

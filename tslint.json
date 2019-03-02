@@ -2,7 +2,6 @@
   "extends": "tslint:recommended",
   "rules": {
     "arrow-parens": [2, "as-needed", { "requireForBlockBody": true }],
-    "completed-docs": [true, "properties"],
     "interface-name": [true, "never-prefix"],
     "jsdoc-format": [true, "check-multiline-start"],
     "max-classes-per-file": false,

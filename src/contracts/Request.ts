@@ -45,14 +45,7 @@ export interface Request {
    * The authentication object.
    */
   authentication: {
-    /**
-     * The user to be used for the authentication.
-     */
     username: string | null,
-
-    /**
-     * The password to be used for the authentication.
-     */
     password: string | null,
   }
 
@@ -60,14 +53,7 @@ export interface Request {
    * The response configuration object.
    */
   response: {
-    /**
-     * The desired response type.
-     */
     type: ResponseType,
-
-    /**
-     * The desired response encoding.
-     */
     encoding: string,
   }
 
