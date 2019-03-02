@@ -13,6 +13,4 @@ export { Request } from '@/contracts/Request'
 export { Executor } from '@/contracts/Executor'
 export { Response } from '@/contracts/Response'
 
-// export { XhrExecutor } from '@/executors/XhrExecutor'
-// export { HttpExecutor } from '@/executors/HttpExecutor'
 export { AbstractExecutor } from '@/executors/AbstractExecutor'
