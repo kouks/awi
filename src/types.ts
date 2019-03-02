@@ -5,9 +5,3 @@ import { Request } from '@/contracts/Request'
  * current state of the request and the users callback edits the contents.
  */
 export type Interceptor = (request: Request) => Promise<any>
-
-/**
- * A nice utility type for Awi listeners. Every listener can intercept both the
- * request and the response.
- */
-// declare type AwiListener = (request: AwiRequest) => Promise<void>
