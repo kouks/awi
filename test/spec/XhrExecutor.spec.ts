@@ -12,6 +12,7 @@ import {
   RequestTimedOutException,
 } from '@'
 
+import { Some } from '@bausano/data-structures'
 import { XhrExecutor } from '@/executors/XhrExecutor'
 
 describe('XhrExecutor', () => {
@@ -313,4 +314,4 @@ describe('XhrExecutor', () => {
 })
 
 const xhr = () => new Awi()
-  .use(async req => req.executor = new XhrExecutor)
+  .use(async req => req.executor = new Some(new XhrExecutor))

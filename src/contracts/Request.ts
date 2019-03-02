@@ -1,5 +1,6 @@
-import { Executor } from '@/contracts/Executor'
 import { Method } from '@/enumerations/Method'
+import { Executor } from '@/contracts/Executor'
+import { Optional } from '@bausano/data-structures'
 import { ResponseType } from '@/enumerations/ResponseType'
 
 export interface Request {
@@ -73,6 +74,6 @@ export interface Request {
   /**
    * The executor instance to perform the request.
    */
-  executor: Executor
+  executor: Optional<Executor>
 
 }

@@ -47,15 +47,4 @@ export interface Client {
   put<T extends Response> (path?: string, body?: any) : Promise<T>
   patch<T extends Response> (path?: string, body?: any) : Promise<T>
 
-  /**
-   * Discars any previously defined interceptors for the given instance. This is
-   * just utility that is not to be used often.
-   */
-  discard () : Client
-
-  /**
-   * Discards any listeners assigned to the instance. TODO: Listeners?
-   */
-  // deafen () : Client
-
 }

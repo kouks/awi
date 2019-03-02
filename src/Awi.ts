@@ -2,15 +2,13 @@ import { Interceptor } from '@/types'
 import { Client } from '@/contracts/Client'
 import { Request } from '@/contracts/Request'
 import { Method } from '@/enumerations/Method'
-import { Executor } from '@/contracts/Executor'
+import { None } from '@bausano/data-structures'
 import { Response } from '@/contracts/Response'
-import { XhrExecutor } from '@/executors/XhrExecutor'
-import { HttpExecutor } from '@/executors/HttpExecutor'
 import { ResponseType } from '@/enumerations/ResponseType'
-
 import {
   normalizeHeaders,
   handleRequestPayload,
+  determineDefaultExecutor,
   assignDefaultAcceptHeader,
 } from '@/interceptors'
 
@@ -30,6 +28,7 @@ export class Awi implements Client {
      */
     priority: number,
   }> = [
+    { interceptor: determineDefaultExecutor, priority: 10 },
     { interceptor: normalizeHeaders, priority: 1 },
     { interceptor: assignDefaultAcceptHeader, priority: 1 },
     { interceptor: handleRequestPayload, priority: 1 },
@@ -56,7 +55,7 @@ export class Awi implements Client {
       type: ResponseType.JSON,
       encoding: 'utf8',
     },
-    executor: new HttpExecutor(), // TODO: Replace for None.
+    executor: new None(),
   }
 
   /**
@@ -77,7 +76,8 @@ export class Awi implements Client {
       .reduce(
         (carry, intercept) => carry.then(() => intercept(this.request)),
         Promise.resolve(),
-      ).then(() => this.request.executor.send<T>(this.request))
+      // TODO: Custom exception.
+      ).then(() => this.request.executor.unwrap().send<T>(this.request))
   }
 
   /**
@@ -127,15 +127,6 @@ export class Awi implements Client {
    */
   public async patch<T extends Response> (path?: string, body?: any) : Promise<T> {
     return this.prepare(Method.PATCH, path, body).send<T>()
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public discard () : Client {
-    this.interceptors = []
-
-    return this
   }
 
   /**

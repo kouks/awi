@@ -10,6 +10,8 @@ import {
   ResponseType,
 } from '@'
 
+import { Some } from '@bausano/data-structures'
+
 describe('Awi client', () => {
 
   it('is awesome', async () => {
@@ -18,8 +20,7 @@ describe('Awi client', () => {
 
   it('correctly executes interceptors', async () => {
     // When.
-    const response = await new Awi()
-      .use(async req => req.executor = new MockExecutor)
+    const response = await mock()
       .use(async req => req.base = 'http://localhost')
       .use(async req => req.path = 'resource')
       .send<MockResponse>()
@@ -33,8 +34,7 @@ describe('Awi client', () => {
 
   it('executes interceptors in the right order', async () => {
     // When.
-    const response = await new Awi()
-      .use(async req => req.executor = new MockExecutor)
+    const response = await mock()
       .use(async req => req.base = 'http://localhost')
       .use(async req => req.path = 'resource')
       .use(async req => req.base = 'http://otherhost')
@@ -49,8 +49,7 @@ describe('Awi client', () => {
 
   it('executes interceptors in the right order with priority', async () => {
     // When.
-    const response = await new Awi()
-      .use(async req => req.executor = new MockExecutor)
+    const response = await mock()
       .use(async req => req.base = 'http://localhost', 5)
       .use(async req => req.base = 'http://otherhost', 10)
       .send<MockResponse>()
@@ -60,25 +59,11 @@ describe('Awi client', () => {
       .to.have.property('base').that.equals('http://localhost')
   })
 
-  it('can discard all interceptors', async () => {
-    // When.
-    const response = await new Awi()
-      .use(async req => req.base = 'http://localhost')
-      .discard()
-      .use(async req => req.executor = new MockExecutor)
-      .send<MockResponse>()
-
-    // Then.
-    expect(response.body)
-      .to.have.property('base').that.equals('')
-  })
-
   describe('Awi\'s request method sugar', () => {
 
     it('has a working GET helper', async () => {
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new MockExecutor)
+      const response = await mock()
         .get<MockResponse>('resource')
 
       // Then.
@@ -90,8 +75,7 @@ describe('Awi client', () => {
 
     it('has a working DELETE helper', async () => {
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new MockExecutor)
+      const response = await mock()
         .delete<MockResponse>('resource')
 
       // Then.
@@ -103,8 +87,7 @@ describe('Awi client', () => {
 
     it('has a working HEAD helper', async () => {
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new MockExecutor)
+      const response = await mock()
         .head<MockResponse>('resource')
 
       // Then.
@@ -116,8 +99,7 @@ describe('Awi client', () => {
 
     it('has a working OPTIONS helper', async () => {
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new MockExecutor)
+      const response = await mock()
         .options<MockResponse>('resource')
 
       // Then.
@@ -129,8 +111,7 @@ describe('Awi client', () => {
 
     it('has a working POST helper', async () => {
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new MockExecutor)
+      const response = await mock()
         .post<MockResponse>('resource', { body: 'test' })
 
       // Then.
@@ -144,8 +125,7 @@ describe('Awi client', () => {
 
     it('has a working PUT helper', async () => {
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new MockExecutor)
+      const response = await mock()
         .put<MockResponse>('resource', { body: 'test' })
 
       // Then.
@@ -159,8 +139,7 @@ describe('Awi client', () => {
 
     it('has a working PATCH helper', async () => {
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new MockExecutor)
+      const response = await mock()
         .patch<MockResponse>('resource', { body: 'test' })
 
       // Then.
@@ -178,8 +157,7 @@ describe('Awi client', () => {
 
     it('include an interceptor to normalize header names', async () => {
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new MockExecutor)
+      const response = await mock()
         .use(async req => req.headers['X-Custom-Header'] = 'test')
         .get<MockResponse>('resource')
 
@@ -192,8 +170,7 @@ describe('Awi client', () => {
 
     it('include an interceptor to assign a default accept header', async () => {
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new MockExecutor)
+      const response = await mock()
         .use(async req => req.response.type = ResponseType.JSON)
         .get<MockResponse>('resource')
 
@@ -204,8 +181,7 @@ describe('Awi client', () => {
 
     it('do not collide with user defined headers', async () => {
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new MockExecutor)
+      const response = await mock()
         .use(async req => req.headers['accept'] = 'application/xml')
         .get<MockResponse>('resource')
 
@@ -216,8 +192,7 @@ describe('Awi client', () => {
 
     it('remove any content headers if no body is passed', async () => {
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new MockExecutor)
+      const response = await mock()
         .use(async req => req.headers['content-type'] = 'application/json')
         .use(async req => req.headers['content-length'] = '13')
         .post<MockResponse>('resource')
@@ -231,8 +206,7 @@ describe('Awi client', () => {
 
     it('assign correct content type header if body is passed', async () => {
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new MockExecutor)
+      const response = await mock()
         .use(async req => req.body = { ok: true })
         .post<MockResponse>('resource')
 
@@ -243,8 +217,7 @@ describe('Awi client', () => {
 
     it('normalizes the body of the request', async () => {
       // When.
-      const response = await new Awi()
-        .use(async req => req.executor = new MockExecutor)
+      const response = await mock()
         .use(async req => req.body = { ok: true })
         .post<MockResponse>('resource')
 
@@ -256,6 +229,9 @@ describe('Awi client', () => {
   })
 
 })
+
+const mock = () => new Awi()
+  .use(async req => req.executor = new Some(new MockExecutor))
 
 class MockExecutor implements Executor {
   async send<T extends Response> (request: Request) : Promise<T> {

@@ -11,6 +11,7 @@ import {
   RequestTimedOutException,
 } from '@'
 
+import { Some } from '@bausano/data-structures'
 import { HttpExecutor } from '@/executors/HttpExecutor'
 
 describe('HttpExecutor', () => {
@@ -261,4 +262,4 @@ describe('HttpExecutor', () => {
 
 const http = () => new Awi()
   .use(async req => req.timeout = 4)
-  .use(async req => req.executor = new HttpExecutor)
+  .use(async req => req.executor = new Some(new HttpExecutor))

@@ -9,6 +9,8 @@ import {
   InvalidRequestUrlException,
 } from '@'
 
+import { Some } from '@bausano/data-structures'
+
 describe('AbstractExecutor', () => {
 
   describe('AbstractExecutor\'s request builder', () => {
@@ -87,7 +89,7 @@ describe('AbstractExecutor', () => {
 })
 
 const mock = () => new Awi()
-  .use(async req => req.executor = new MockExecutor)
+  .use(async req => req.executor = new Some(new MockExecutor))
 
 class MockExecutor extends AbstractExecutor {
   async send<T extends Response> (request: Request) : Promise<T> {

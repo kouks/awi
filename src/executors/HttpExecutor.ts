@@ -72,14 +72,12 @@ export class HttpExecutor extends AbstractExecutor {
 
         // Finalize the stream.
         response.on('end', () => {
-          const data: Buffer = Buffer.concat(buffer)
-
           // The default response body is of any type.
           const body: any = {
-            [ResponseType.BUFFER]: data,
-            [ResponseType.JSON]: JSON.parse(data.toString(request.response.encoding) || 'null'),
-            [ResponseType.TEXT]: data.toString(request.response.encoding),
-          }[request.response.type]
+            [ResponseType.BUFFER]: (data: Buffer) => data,
+            [ResponseType.JSON]: (data: Buffer) => JSON.parse(data.toString(request.response.encoding) || 'null'),
+            [ResponseType.TEXT]: (data: Buffer) => data.toString(request.response.encoding),
+          }[request.response.type](Buffer.concat(buffer))
 
           this.finalize<T>(
             resolve,

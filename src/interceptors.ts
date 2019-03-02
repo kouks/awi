@@ -1,4 +1,5 @@
 import { Interceptor } from '@/types'
+import { Some } from '@bausano/data-structures'
 import { ResponseType } from './enumerations/ResponseType'
 
 /**
@@ -50,18 +51,18 @@ export const handleRequestPayload: Interceptor = async (request) => {
  * environment. Note that the executor neeeds to be imported dynamically as the
  * other driver would always break the code.
  *
- * TODO: Test this somehow, also can be improved with Optional<T>
+ * TODO: Test this somehow.
  */
 export const determineDefaultExecutor: Interceptor = async (request) => {
   // If the process variable exists and it is in instance of the process class,
   // we can be quite sure that we are in a node environment.
   if (typeof process !== 'undefined' && String(process) === '[object process]') {
-    return request.executor = new (await import('@/executors/HttpExecutor')).HttpExecutor()
+    return request.executor = new Some(new (await import('@/executors/HttpExecutor')).HttpExecutor())
   }
 
   // If there is a window object and the XMLHttpRequest class exists, we are
   // most likely in a browser.
   if (typeof window !== 'undefined' && typeof XMLHttpRequest !== 'undefined') {
-    return request.executor = new (await import('@/executors/XhrExecutor')).XhrExecutor()
+    return request.executor = new Some(new (await import('@/executors/XhrExecutor')).XhrExecutor())
   }
 }
