@@ -35,7 +35,7 @@ const response: Response = await new Awi()
 
 console.assert(typeof response.body === 'object')
 console.assert(typeof response.headers === 'object')
-console.assert(typeof response.status === 200)
+console.assert(response.status === 200)
 ```
 
 Awi is at its best when used in TypeScript as you can type-hint all responses
@@ -65,7 +65,7 @@ import { Awi, Response } from 'awi'
 const response: Response = await new Awi()
   .post('http://server.api/todos', { title: 'Start using Awi.', completed: true })
 
-console.assert(typeof response.status === 201)
+console.assert(response.status === 201)
 ```
 
 Upon receiving a 400+ response status, Awi automatically rejects the promise so
@@ -77,7 +77,7 @@ import { Awi } from 'awi'
 
 await new Awi()
   .post('http://server.api/todos', { completed: false })
-  .catch(response => console.assert(typeof response.status === 422))
+  .catch(response => console.assert(response.status === 422))
 ```
 
 Awi also provides a `body` helper to avoid repeating the infamous
@@ -119,8 +119,8 @@ has an `optional` helper that returns the body of the response as an
 > a different request method, the method needs to be specified using
 > an [interceptor](#interceptors).
 
-> Also note that if the request fails due to network issues or misonfiguration, the
-> promise is still rejected.
+> Also note that if the request fails due to network issues or misconfiguration,
+> the promise is still rejected.
 
 ```typescript
 import { Awi, Response } from 'awi'
@@ -155,7 +155,7 @@ const response: Response = await new Awi()
   .use(async req => req.path = 'todos')
   .get()
 
-console.assert(typeof response.status === 200))
+console.assert(response.status === 200))
 ```
 
 > All properties that can be modified on the request object are available in
@@ -175,14 +175,14 @@ const response: Response = await new Awi()
   .use(async req => req.method = Method.GET)
   .send()
 
-console.assert(typeof response.status === 200))
+console.assert(response.status === 200))
 ```
 
 > Although this approach is rather lenghty and using helpers is much cleaner, it
 > provides a straightforward way to extend Awi and/or create request templates.
 
 As you can see, the interceptor concept provides a way to create request
-templates for your application is a very nice and reusable way. This can be
+templates for your application in a very nice and reusable way. This can be
 especially useful when making authorized requests.
 
 ```typescript
@@ -197,8 +197,16 @@ const auth = () => new Awi()
 const response: Response = await auth()
   .get('user')
 
-console.assert(typeof response.status === 200))
+console.assert(response.status === 200))
 ```
+
+### API Reference
+
+Coming soon.
+
+## License
+
+MIT
 
 
 <!--
