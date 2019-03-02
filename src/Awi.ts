@@ -5,6 +5,7 @@ import { Method } from '@/enumerations/Method'
 import { None } from '@bausano/data-structures'
 import { Response } from '@/contracts/Response'
 import { ResponseType } from '@/enumerations/ResponseType'
+
 import {
   normalizeHeaders,
   handleRequestPayload,
