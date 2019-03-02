@@ -92,15 +92,11 @@ to type-hint the response body.
 > returned.
 
 ```typescript
-import { Awi, Response } from 'awi'
+import { Awi } from 'awi'
 
 interface Todo {
   title: string
   completed: boolean
-}
-
-interface TodoResponse extends Response {
-  body: Todo
 }
 
 const todo: Todo = await new Awi()
@@ -123,16 +119,12 @@ has an `optional` helper that returns the body of the response as an
 > the promise is still rejected.
 
 ```typescript
-import { Awi, Response } from 'awi'
+import { Awi } from 'awi'
 import { Optional } from '@bausano/data-structures'
 
 interface Todo {
   title: string
   completed: boolean
-}
-
-interface TodoResponse extends Response {
-  body: Todo
 }
 
 const todo: Optional<Todo> = await new Awi()
