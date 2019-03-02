@@ -279,7 +279,7 @@ const mock = () => new Awi()
 class MockExecutor implements Executor {
   async send<T extends Response> (request: Request) : Promise<T> {
     if (request.path === 'error') {
-      throw new RequestFailedException(request)
+      throw new RequestFailedException(request, new Error)
     }
 
     if (request.path === 'invalid') {

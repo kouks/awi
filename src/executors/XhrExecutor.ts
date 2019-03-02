@@ -42,7 +42,6 @@ export class XhrExecutor extends AbstractExecutor {
           return
         }
 
-        // TODO: Handle body in mutations?
         // TODO: Response type stream?
         this.finalize<T>(
           resolve,
@@ -57,7 +56,7 @@ export class XhrExecutor extends AbstractExecutor {
       xhr.onabort = () => reject(new RequestAbortedException(request))
 
       // When the request failed due to network issues.
-      xhr.onerror = () => reject(new RequestFailedException(request))
+      xhr.onerror = () => reject(new RequestFailedException(request, new Error('Request failed.')))
 
       // When the request failed due to a timeout.
       xhr.ontimeout = () => reject(new RequestTimedOutException(request))

@@ -36,6 +36,7 @@ export class HttpExecutor extends AbstractExecutor {
 
       const client: http.ClientRequest = protocol.request({
         hostname: url.hostname,
+        port: url.port,
         protocol: url.protocol,
         path: `${url.pathname}${url.search}`,
         method: String(request.method),
@@ -62,12 +63,12 @@ export class HttpExecutor extends AbstractExecutor {
         response.on('data', chunk => buffer.push(chunk))
 
         // Handle any errors thrown while reading the data.
-        response.on('error', () => {
+        response.on('error', (reason) => {
           if (requestTimedOut) {
             return
           }
 
-          throw new RequestFailedException(request)
+          throw new RequestFailedException(request, reason)
         })
 
         // Finalize the stream.
@@ -90,7 +91,7 @@ export class HttpExecutor extends AbstractExecutor {
       })
 
       // Handle any errors during the request.
-      client.on('error', () => {
+      client.on('error', (reason) => {
         if (requestTimedOut) {
           return
         }
@@ -98,7 +99,7 @@ export class HttpExecutor extends AbstractExecutor {
         // Clear the request timer.
         clearTimeout(requestTimer)
 
-        reject(new RequestFailedException(request))
+        reject(new RequestFailedException(request, reason))
       })
 
       // Account for the request timeout.
