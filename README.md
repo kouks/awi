@@ -192,17 +192,42 @@ const response: Response = await auth()
 console.assert(response.status === 200))
 ```
 
+### Why Awi?
+
+**It's lightweight**
+
+The minified file size is <13kB and we do not intend to make it bigger!
+
+**It's designed for developers, by developers**
+
+Making http requests is something every developer needs to do on daily basis,
+especially when it comes to TypeScript or JavaScript. Awi has a neat code base,
+is strictly typed and we purposefully leave documentation blocks in the built
+files - this way, you can read up on what each method does by simply
+ctrl-clicking on it!
+
+**It's flexible**
+
+You can either choose to go the easy way and using Awi's built-in helpers to
+execute your HTTP request as a one-liner, or you can define and extract reusable
+templates for your requests from scratch!
+
+Awi is also open-source, so should you be missing any features that would make
+your life easier, feel free to contribute.
+
 ### API Reference
 
-All of Awi's functionality is summed up on the [wiki page](https://github.com/kouks/awi/wiki/API-Reference).
+All of Awi's functionality is summed up on the
+[wiki page](https://github.com/kouks/awi/wiki/API-Reference).
+
+## Credits
+
+The interceptor pattern is heavily inspired by [Koa](https://koajs.com/), which
+is also used to create a mock server for our e2e tests.
+
+Implemetation of executors for both web and node are inspired by no other than
+[axios](https://github.com/axios/axios).
 
 ## License
 
 MIT
-
-
-<!--
-lightweight
-extendable
-flexible
--->
