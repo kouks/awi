@@ -159,7 +159,7 @@ console.assert(response.status === 200))
 ```
 
 > All properties that can be modified on the request object are available in
-> Awi's [API reference](#request).
+> Awi's [API reference](https://github.com/kouks/awi/wiki/Request).
 
 Every request in Awi is uniquely defined by the array of interceptors assigned
 to the request. All Awi's helper methods are nothing more but a sugar for
@@ -202,7 +202,7 @@ console.assert(response.status === 200))
 
 ### API Reference
 
-Coming soon.
+All of Awi's functionality is summed up on the [wiki page](https://github.com/kouks/awi/wiki/API-Reference).
 
 ## License
 
