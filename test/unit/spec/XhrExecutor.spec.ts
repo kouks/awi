@@ -176,6 +176,22 @@ describe('XhrExecutor', () => {
         .to.equal('awi')
     })
 
+    it('correctly parses a buffer response', async () => {
+      // Given.
+      server.respondWith((req) => {
+        req.respond(200, {}, 'awi')
+      })
+
+      // When.
+      const response = await xhr()
+        .use(async req => req.response.type = ResponseType.BUFFER)
+        .get<Response>('http://server.api')
+
+      // Then.
+      expect(new TextDecoder().decode(response.body))
+        .to.equal('awi')
+    })
+
     it('correctly parses basic response headers', async () => {
       // Given.
       server.respondWith((req) => {

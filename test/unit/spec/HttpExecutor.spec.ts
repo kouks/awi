@@ -160,6 +160,22 @@ describe('HttpExecutor', () => {
         .to.equal('{"ok":true}')
     })
 
+    it('correctly parses a buffer response', async () => {
+      // Given.
+      nock('http://server.api')
+        .get('/')
+        .reply(200, { ok: true })
+
+      // When.
+      const response = await http()
+        .use(async req => req.response.type = ResponseType.BUFFER)
+        .get<Response>('http://server.api')
+
+      // Then.
+      expect(response.body.toString('utf8'))
+        .to.equal('{"ok":true}')
+    })
+
     it('correctly parses basic response headers', async () => {
       // Given.
       nock('http://server.api')
