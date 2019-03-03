@@ -1,7 +1,6 @@
 import * as http from 'http'
 import * as https from 'https'
 import { Request } from '@/contracts/Request'
-import { Status } from '@/enumerations/Status'
 import { Response } from '@/contracts/Response'
 import { ResponseType } from '@/enumerations/ResponseType'
 import { AbstractExecutor } from '@/executors/AbstractExecutor'
@@ -84,7 +83,7 @@ export class HttpExecutor extends AbstractExecutor {
             resolve,
             reject,
             body,
-            response.statusCode as Status,
+            response.statusCode as number,
             response.headers as { [key: string]: string },
           )
         })

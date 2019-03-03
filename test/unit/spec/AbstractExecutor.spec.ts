@@ -2,7 +2,6 @@ import { expect } from 'chai'
 
 import {
   Awi,
-  Status,
   Request,
   Response,
   AbstractExecutor,
@@ -95,7 +94,7 @@ class MockExecutor extends AbstractExecutor {
   async send<T extends Response> (request: Request) : Promise<T> {
     return {
       body: this.buildRequestUrl(request).toString(),
-      status: Status.OK,
+      status: 200,
       headers: {}
     } as T
   }

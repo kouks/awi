@@ -1,5 +1,4 @@
 import { Request } from '@/contracts/Request'
-import { Status } from '@/enumerations/Status'
 import { Response } from '@/contracts/Response'
 import { AbstractExecutor } from '@/executors/AbstractExecutor'
 
@@ -47,7 +46,7 @@ export class XhrExecutor extends AbstractExecutor {
           resolve,
           reject,
           xhr.response,
-          xhr.status as Status,
+          xhr.status,
           this.parseHeaders(xhr),
         )
       }

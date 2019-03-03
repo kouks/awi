@@ -1,5 +1,4 @@
 import { Request } from '@/contracts/Request'
-import { Status } from '@/enumerations/Status'
 import { Executor } from '@/contracts/Executor'
 import { Response } from '@/contracts/Response'
 import { InvalidRequestUrlException } from '@/exceptions'
@@ -24,7 +23,7 @@ export abstract class AbstractExecutor implements Executor {
     resolve: (response?: T | PromiseLike<T>) => void,
     reject: (response?: T | PromiseLike<T>) => void,
     body: any,
-    status: Status,
+    status: number,
     headers: { [key: string]: string },
   ) : void {
     const response: T = {
@@ -33,7 +32,7 @@ export abstract class AbstractExecutor implements Executor {
       headers,
     } as T
 
-    response.status < Status.BAD_REQUEST
+    response.status < 400
       ? resolve(response)
       : reject(response)
   }

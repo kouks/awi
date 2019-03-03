@@ -3,7 +3,6 @@ import { expect } from 'chai'
 import {
   Awi,
   Method,
-  Status,
   Request,
   Executor,
   Response,
@@ -285,14 +284,14 @@ class MockExecutor implements Executor {
     if (request.path === 'invalid') {
       throw {
         body: request,
-        status: Status.BAD_REQUEST,
+        status: 400,
         headers: {}
       } as T
     }
 
     return {
       body: request,
-      status: Status.OK,
+      status: 200,
       headers: {}
     } as T
   }

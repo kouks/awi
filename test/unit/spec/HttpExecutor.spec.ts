@@ -3,7 +3,6 @@ import { expect } from 'chai'
 
 import {
   Awi,
-  Status,
   Response,
   ResponseType,
   RequestFailedException,
@@ -37,7 +36,7 @@ describe('HttpExecutor', () => {
       expect(response.body)
         .to.deep.equal({ ok: true })
       expect(response.status)
-        .to.equal(Status.OK)
+        .to.equal(200)
     })
 
     it('assigns correct headers to the request', async () => {
@@ -55,7 +54,7 @@ describe('HttpExecutor', () => {
 
       // Then.
       expect(response.status)
-        .to.equal(Status.OK)
+        .to.equal(200)
     })
 
     it('assigns authentication credentials to the request', async () => {
@@ -72,7 +71,7 @@ describe('HttpExecutor', () => {
 
       // Then.
       expect(response.status)
-        .to.equal(Status.OK)
+        .to.equal(200)
     })
 
     it('assigns a response type', async () => {
@@ -95,7 +94,7 @@ describe('HttpExecutor', () => {
       // Given.
       nock('http://server.api')
         .post('/')
-        .reply(200, (_: string, body: any) => body)
+        .reply(201, (_: string, body: any) => body)
 
       // When.
       const response = await http()
@@ -105,6 +104,8 @@ describe('HttpExecutor', () => {
       // Then.
       expect(response.body)
         .to.deep.equal({ ok: true })
+      expect(response.status)
+        .to.equal(201)
     })
 
     it('uses the https protocol driver when appropriate', async () => {
@@ -121,7 +122,7 @@ describe('HttpExecutor', () => {
       expect(response.body)
         .to.deep.equal({ ok: true })
       expect(response.status)
-        .to.equal(Status.OK)
+        .to.equal(200)
     })
 
   })
@@ -202,7 +203,7 @@ describe('HttpExecutor', () => {
       // Then.
       await expect(client)
         .to.eventually.be.rejected
-        .and.to.have.property('status').that.equals(Status.BAD_REQUEST)
+        .and.to.have.property('status').that.equals(400)
     })
 
   })
