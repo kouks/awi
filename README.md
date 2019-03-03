@@ -201,7 +201,7 @@ All of Awi's functionality is summed up on the
 
 **It's lightweight**
 
-The minified file size is <13kB and we do not intend to make it bigger!
+The minified file size is <12kB and we do not intend to make it bigger!
 
 **It's designed for developers, by developers**
 
