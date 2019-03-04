@@ -62,8 +62,6 @@ export const handleRequestPayload: Interceptor = async (request) => {
  * Determines which executor should be used by default based on the
  * environment. Note that the executor neeeds to be imported dynamically as the
  * other driver would always break the code.
- *
- * TODO: Test this somehow.
  */
 export const determineDefaultExecutor: Interceptor = async (request) => {
   // If the process variable exists and it is in instance of the process class,

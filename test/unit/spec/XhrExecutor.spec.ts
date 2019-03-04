@@ -3,6 +3,7 @@ import * as sinon from 'sinon'
 
 import {
   Awi,
+  Some,
   Method,
   Response,
   ResponseType,
@@ -11,7 +12,6 @@ import {
   RequestTimedOutException,
 } from '@'
 
-import { Some } from '@bausano/data-structures'
 import { XhrExecutor } from '@/executors/XhrExecutor'
 
 describe('XhrExecutor', () => {

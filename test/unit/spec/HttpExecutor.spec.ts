@@ -3,6 +3,7 @@ import { expect } from 'chai'
 
 import {
   Awi,
+  Some,
   Response,
   ResponseType,
   RequestFailedException,
@@ -10,7 +11,6 @@ import {
   RequestTimedOutException,
 } from '@'
 
-import { Some } from '@bausano/data-structures'
 import { HttpExecutor } from '@/executors/HttpExecutor'
 
 describe('HttpExecutor', () => {
