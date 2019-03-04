@@ -5,7 +5,6 @@ export * from './exceptions'
 export { Awi } from '@/Awi'
 
 export { Method } from '@/enumerations/Method'
-export { Status } from '@/enumerations/Status'
 export { ResponseType } from '@/enumerations/ResponseType'
 
 export { Client } from '@/contracts/Client'

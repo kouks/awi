@@ -11,6 +11,7 @@ script:
   - npm run build
   - npm run dist
   - npm run test
+  - npm run test:e2e
   - npm run coverage:json
 
 after_success:

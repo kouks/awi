@@ -1,7 +1,7 @@
+import { URL } from 'url'
 import * as http from 'http'
 import * as https from 'https'
 import { Request } from '@/contracts/Request'
-import { Status } from '@/enumerations/Status'
 import { Response } from '@/contracts/Response'
 import { ResponseType } from '@/enumerations/ResponseType'
 import { AbstractExecutor } from '@/executors/AbstractExecutor'
@@ -20,8 +20,8 @@ export class HttpExecutor extends AbstractExecutor {
    */
   public async send<T extends Response> (request: Request) : Promise<T> {
     return new Promise<T>((resolve, reject) => {
-
-      const url: URL = request.url.expect(new InvalidRequestUrlException(request))
+      // Build the request URL.
+      const url: URL = this.buildUrl(request)
       let requestTimedOut: boolean = false
       let requestTimer: NodeJS.Timeout
 
@@ -37,6 +37,7 @@ export class HttpExecutor extends AbstractExecutor {
 
       const client: http.ClientRequest = protocol.request({
         hostname: url.hostname,
+        port: url.port,
         protocol: url.protocol,
         path: `${url.pathname}${url.search}`,
         method: String(request.method),
@@ -63,12 +64,12 @@ export class HttpExecutor extends AbstractExecutor {
         response.on('data', chunk => buffer.push(chunk))
 
         // Handle any errors thrown while reading the data.
-        response.on('error', () => {
+        response.on('error', (reason) => {
           if (requestTimedOut) {
             return
           }
 
-          throw new RequestFailedException(request)
+          throw new RequestFailedException(request, reason)
         })
 
         // Finalize the stream.
@@ -84,14 +85,14 @@ export class HttpExecutor extends AbstractExecutor {
             resolve,
             reject,
             body,
-            response.statusCode as Status,
+            response.statusCode as number,
             response.headers as { [key: string]: string },
           )
         })
       })
 
       // Handle any errors during the request.
-      client.on('error', () => {
+      client.on('error', (reason) => {
         if (requestTimedOut) {
           return
         }
@@ -99,7 +100,7 @@ export class HttpExecutor extends AbstractExecutor {
         // Clear the request timer.
         clearTimeout(requestTimer)
 
-        reject(new RequestFailedException(request))
+        reject(new RequestFailedException(request, reason))
       })
 
       // Account for the request timeout.
@@ -114,6 +115,36 @@ export class HttpExecutor extends AbstractExecutor {
       // Send the request.
       client.end(request.body)
     })
+  }
+
+  /**
+   * Build the URL using the node APIs.
+   *
+   * @param request The reuqest to use
+   * @return The URl object
+   * @throws {InvalidRequestUrlException} If the URL can't be built
+   */
+  private buildUrl (request: Request) : URL {
+    try {
+      // Create a base URL object.
+      const url: URL = request.path === ''
+        ? new URL(request.base)
+        : request.base === ''
+        ? new URL(request.path)
+        : new URL(request.path, request.base)
+
+      // Assign authentication credentials if not provided manually.
+      url.username = request.authentication.username || url.username
+      url.password = request.authentication.password || url.password
+
+      // Assign desired query parameters.
+      Object.keys(request.query)
+        .forEach(key => url.searchParams.set(key, request.query[key]))
+
+      return url
+    } catch {
+      throw new InvalidRequestUrlException(request)
+    }
   }
 
 }

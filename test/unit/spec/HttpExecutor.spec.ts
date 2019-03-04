@@ -3,15 +3,15 @@ import { expect } from 'chai'
 
 import {
   Awi,
-  Status,
+  Some,
   Response,
   ResponseType,
   RequestFailedException,
   RequestAbortedException,
   RequestTimedOutException,
+  InvalidRequestUrlException,
 } from '@'
 
-import { Some } from '@bausano/data-structures'
 import { HttpExecutor } from '@/executors/HttpExecutor'
 
 describe('HttpExecutor', () => {
@@ -37,7 +37,7 @@ describe('HttpExecutor', () => {
       expect(response.body)
         .to.deep.equal({ ok: true })
       expect(response.status)
-        .to.equal(Status.OK)
+        .to.equal(200)
     })
 
     it('assigns correct headers to the request', async () => {
@@ -55,7 +55,7 @@ describe('HttpExecutor', () => {
 
       // Then.
       expect(response.status)
-        .to.equal(Status.OK)
+        .to.equal(200)
     })
 
     it('assigns authentication credentials to the request', async () => {
@@ -72,7 +72,7 @@ describe('HttpExecutor', () => {
 
       // Then.
       expect(response.status)
-        .to.equal(Status.OK)
+        .to.equal(200)
     })
 
     it('assigns a response type', async () => {
@@ -95,7 +95,7 @@ describe('HttpExecutor', () => {
       // Given.
       nock('http://server.api')
         .post('/')
-        .reply(200, (_: string, body: any) => body)
+        .reply(201, (_: string, body: any) => body)
 
       // When.
       const response = await http()
@@ -105,6 +105,8 @@ describe('HttpExecutor', () => {
       // Then.
       expect(response.body)
         .to.deep.equal({ ok: true })
+      expect(response.status)
+        .to.equal(201)
     })
 
     it('uses the https protocol driver when appropriate', async () => {
@@ -121,7 +123,7 @@ describe('HttpExecutor', () => {
       expect(response.body)
         .to.deep.equal({ ok: true })
       expect(response.status)
-        .to.equal(Status.OK)
+        .to.equal(200)
     })
 
   })
@@ -156,6 +158,22 @@ describe('HttpExecutor', () => {
 
       // Then.
       expect(response.body)
+        .to.equal('{"ok":true}')
+    })
+
+    it('correctly parses a buffer response', async () => {
+      // Given.
+      nock('http://server.api')
+        .get('/')
+        .reply(200, { ok: true })
+
+      // When.
+      const response = await http()
+        .use(async req => req.response.type = ResponseType.BUFFER)
+        .get<Response>('http://server.api')
+
+      // Then.
+      expect(response.body.toString('utf8'))
         .to.equal('{"ok":true}')
     })
 
@@ -202,7 +220,7 @@ describe('HttpExecutor', () => {
       // Then.
       await expect(client)
         .to.eventually.be.rejected
-        .and.to.have.property('status').that.equals(Status.BAD_REQUEST)
+        .and.to.have.property('status').that.equals(400)
     })
 
   })
@@ -254,6 +272,84 @@ describe('HttpExecutor', () => {
       // Then.
       await expect(client)
         .to.eventually.be.rejectedWith(RequestTimedOutException)
+    })
+
+  })
+
+  describe('HttpExecutor\'s URL builder', () => {
+
+    it('correctly builds the url when both base and path are provided', async () => {
+      // Given.
+      nock('http://server.api')
+        .get('/todos')
+        .reply(200)
+
+      // When.
+      const response = await http()
+        .use(async req => req.base = 'http://server.api')
+        .get<Response>('todos')
+
+      // Then.
+      expect(response.status)
+        .to.equal(200)
+    })
+
+    it('correctly builds the url when base is omitted', async () => {
+      // Given.
+      nock('http://server.api')
+        .get('/todos')
+        .reply(200)
+
+      // When.
+      const response = await http()
+        .get<Response>('http://server.api/todos')
+
+      // Then.
+      expect(response.status)
+        .to.equal(200)
+    })
+
+    it('correctly builds the url when path is omitted', async () => {
+      // Given.
+      nock('http://server.api')
+        .get('/todos')
+        .reply(200)
+
+      // When.
+      const response = await http()
+        .use(async req => req.base = 'http://server.api/todos')
+        .get<Response>()
+
+      // Then.
+      expect(response.status)
+        .to.equal(200)
+    })
+
+    it('correctly assigns query parameters', async () => {
+      // Given.
+      nock('http://server.api')
+        .get('/')
+        .query({ awi: 'awesome', key: '123' })
+        .reply(200)
+
+      // When.
+      const response = await http()
+        .use(async req => req.query = { awi: 'awesome', key: '123' })
+        .get<Response>('http://server.api')
+
+      // Then.
+      expect(response.status)
+        .to.equal(200)
+    })
+
+    it('rejects when the request URL is invalid', async () => {
+      // When.
+      const client = http()
+        .get<Response>('invalid-url')
+
+      // Then.
+      await expect(client)
+        .to.eventually.be.rejectedWith(InvalidRequestUrlException)
     })
 
   })

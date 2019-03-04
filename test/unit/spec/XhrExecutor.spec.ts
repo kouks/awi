@@ -3,16 +3,16 @@ import * as sinon from 'sinon'
 
 import {
   Awi,
+  Some,
   Method,
-  Status,
   Response,
   ResponseType,
   RequestFailedException,
   RequestAbortedException,
   RequestTimedOutException,
+  InvalidRequestUrlException,
 } from '@'
 
-import { Some } from '@bausano/data-structures'
 import { XhrExecutor } from '@/executors/XhrExecutor'
 
 describe('XhrExecutor', () => {
@@ -32,7 +32,7 @@ describe('XhrExecutor', () => {
     it('executes a simple GET request', async () => {
       // Given.
       server.respondWith((req) => {
-        req.respond(Status.OK, {}, JSON.stringify({ ok: true, method: req.method }))
+        req.respond(200, {}, JSON.stringify({ ok: true, method: req.method }))
       })
 
       // When.
@@ -41,7 +41,7 @@ describe('XhrExecutor', () => {
 
       // Then.
       expect(response.status)
-        .to.equal(Status.OK)
+        .to.equal(200)
       expect(response.body)
         .to.have.property('ok').that.is.true
       expect(response.body)
@@ -51,7 +51,7 @@ describe('XhrExecutor', () => {
     it('assigns correct headers to the request', async () => {
       // Given.
       server.respondWith((req) => {
-        req.respond(Status.OK, {}, JSON.stringify(req.requestHeaders))
+        req.respond(200, {}, JSON.stringify(req.requestHeaders))
       })
 
       // When.
@@ -67,7 +67,7 @@ describe('XhrExecutor', () => {
     it('assigns authentication credentials to the request', async () => {
       // Given.
       server.respondWith((req) => {
-        req.respond(Status.OK, {}, JSON.stringify({
+        req.respond(200, {}, JSON.stringify({
           url: req.url
         }))
       })
@@ -86,7 +86,7 @@ describe('XhrExecutor', () => {
     it('assigns a timeout to the request', async () => {
       // Given.
       server.respondWith((req) => {
-        req.respond(Status.OK, {}, JSON.stringify({
+        req.respond(200, {}, JSON.stringify({
           timeout: (req as any).timeout,
         }))
       })
@@ -104,7 +104,7 @@ describe('XhrExecutor', () => {
     it('assigns a response type', async () => {
       // Given.
       server.respondWith((req) => {
-        req.respond(Status.OK, {}, JSON.stringify({
+        req.respond(200, {}, JSON.stringify({
           responseType: (req as any).responseType,
         }))
       })
@@ -122,7 +122,7 @@ describe('XhrExecutor', () => {
     it('sends body with a POST request', async () => {
       // Given.
       server.respondWith((req) => {
-        req.respond(Status.ACCEPTED, {}, JSON.stringify({
+        req.respond(201, {}, JSON.stringify({
           body: req.requestBody,
           method: req.method
         }))
@@ -135,7 +135,7 @@ describe('XhrExecutor', () => {
 
       // Then.
       expect(response.status)
-        .to.equal(Status.ACCEPTED)
+        .to.equal(201)
       expect(response.body)
         .to.have.property('body').that.equals('{"ok":true}')
       expect(response.body)
@@ -149,7 +149,7 @@ describe('XhrExecutor', () => {
     it('correctly parses a json response', async () => {
       // Given.
       server.respondWith((req) => {
-        req.respond(Status.OK, {}, JSON.stringify({ ok: true }))
+        req.respond(200, {}, JSON.stringify({ ok: true }))
       })
 
       // When.
@@ -164,7 +164,7 @@ describe('XhrExecutor', () => {
     it('correctly parses a text response', async () => {
       // Given.
       server.respondWith((req) => {
-        req.respond(Status.OK, {}, 'awi')
+        req.respond(200, {}, 'awi')
       })
 
       // When.
@@ -177,10 +177,26 @@ describe('XhrExecutor', () => {
         .to.equal('awi')
     })
 
+    it('correctly parses a buffer response', async () => {
+      // Given.
+      server.respondWith((req) => {
+        req.respond(200, {}, 'awi')
+      })
+
+      // When.
+      const response = await xhr()
+        .use(async req => req.response.type = ResponseType.BUFFER)
+        .get<Response>('http://server.api')
+
+      // Then.
+      expect(new TextDecoder().decode(response.body))
+        .to.equal('awi')
+    })
+
     it('correctly parses basic response headers', async () => {
       // Given.
       server.respondWith((req) => {
-        req.respond(Status.OK, { 'content-type': 'application/json' }, '')
+        req.respond(200, { 'content-type': 'application/json' }, '')
       })
 
       // When.
@@ -195,7 +211,7 @@ describe('XhrExecutor', () => {
     it('parses response headers to lower case', async () => {
       // Given.
       server.respondWith((req) => {
-        req.respond(Status.OK, { 'Content-Type': 'application/json' }, '')
+        req.respond(200, { 'Content-Type': 'application/json' }, '')
       })
 
       // When.
@@ -210,7 +226,7 @@ describe('XhrExecutor', () => {
     it('correctly deduplicates response headers', async () => {
       // Given.
       server.respondWith((req) => {
-        req.respond(Status.OK, {
+        req.respond(200, {
           'Cache-Control': 'max-age=86400',
           'Cache-control': 'public',
           'cache-control': 'immutable',
@@ -229,7 +245,7 @@ describe('XhrExecutor', () => {
     it('ignores headers that should not be deduplicated', async () => {
       // Given.
       server.respondWith((req) => {
-        req.respond(Status.OK, {
+        req.respond(200, {
           'Content-Type': 'application/json',
           'content-type': 'text/plain',
         }, '')
@@ -247,7 +263,7 @@ describe('XhrExecutor', () => {
     it('rejects the promise if the response has a 400+ status', async () => {
       // Given.
       server.respondWith((req) => {
-        req.respond(Status.BAD_REQUEST, {}, '')
+        req.respond(400, {}, '')
       })
 
       // When.
@@ -257,7 +273,7 @@ describe('XhrExecutor', () => {
       // Then.
       await expect(process)
         .to.eventually.be.rejected
-        .and.to.have.property('status').that.equals(Status.BAD_REQUEST)
+        .and.to.have.property('status').that.equals(400)
     })
 
   })
@@ -307,6 +323,83 @@ describe('XhrExecutor', () => {
       // Then.
       await expect(client)
         .to.eventually.be.rejectedWith(RequestTimedOutException)
+    })
+
+  })
+
+  describe('XhrExecutor\'s URL builder', () => {
+
+    it('correctly builds the url when both base and path are provided', async () => {
+      // Given.
+      server.respondWith((req) => {
+        req.respond(200, {}, JSON.stringify({ url: req.url }))
+      })
+
+      // When.
+      const response = await xhr()
+        .use(async req => req.base = 'http://server.api')
+        .get<Response>('todos')
+
+      // Then.
+      expect(response.body.url)
+        .to.equal('http://server.api/todos')
+    })
+
+    it('correctly builds the url when base is omitted', async () => {
+      // Given.
+      server.respondWith((req) => {
+        req.respond(200, {}, JSON.stringify({ url: req.url }))
+      })
+
+      // When.
+      const response = await xhr()
+        .get<Response>('http://server.api/todos')
+
+      // Then.
+      expect(response.body.url)
+        .to.equal('http://server.api/todos')
+    })
+
+    it('correctly builds the url when path is omitted', async () => {
+      // Given.
+      server.respondWith((req) => {
+        req.respond(200, {}, JSON.stringify({ url: req.url }))
+      })
+
+      // When.
+      const response = await xhr()
+        .use(async req => req.base = 'http://server.api/todos')
+        .get<Response>()
+
+      // Then.
+      expect(response.body.url)
+        .to.equal('http://server.api/todos')
+    })
+
+    it('correctly assigns query parameters', async () => {
+      // Given.
+      server.respondWith((req) => {
+        req.respond(200, {}, JSON.stringify({ url: req.url }))
+      })
+
+      // When.
+      const response = await xhr()
+        .use(async req => req.query = { awi: 'awesome', key: '123' })
+        .get<Response>('http://server.api')
+
+      // Then.
+      expect(response.body.url)
+        .to.equal('http://server.api/?awi=awesome&key=123')
+    })
+
+    it('rejects when the request URL is invalid', async () => {
+      // When.
+      const client = xhr()
+        .get<Response>('invalid-url')
+
+      // Then.
+      await expect(client)
+        .to.eventually.be.rejectedWith(InvalidRequestUrlException)
     })
 
   })

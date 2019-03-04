@@ -1,4 +1,3 @@
-import { Status } from '@/enumerations/Status'
 
 export interface Response {
 
@@ -12,7 +11,7 @@ export interface Response {
   /**
    * The response status.
    */
-  status: Status
+  status: number
 
   /**
    * The response headers.

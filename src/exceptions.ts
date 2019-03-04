@@ -44,8 +44,8 @@ export class RequestFailedException extends AwiHttpException {
   /**
    * @param request The request in question
    */
-  constructor (public request: Request) {
-    super(`The request [${AwiHttpException.stringifyRequest(request)}] has failed.`)
+  constructor (public request: Request, public reason: Error) {
+    super(`The request [${AwiHttpException.stringifyRequest(request)}] has failed due to: ${reason.message}.`)
   }
 
 }

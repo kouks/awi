@@ -11,7 +11,7 @@ module.exports = {
   plugins: [
     new FriendlyErrorsPlugin(),
     new IgnorePlugin({
-      resourceRegExp: /^https?/
+      resourceRegExp: /^(https?|url)/
     })
   ],
   entry: {

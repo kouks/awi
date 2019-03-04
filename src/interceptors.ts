@@ -1,6 +1,5 @@
 import { Interceptor } from '@/types'
 import { Some } from '@bausano/data-structures'
-import { InvalidRequestUrlException } from './exceptions'
 import { ResponseType } from './enumerations/ResponseType'
 
 /**
@@ -15,7 +14,7 @@ export const normalizeHeaders: Interceptor = async (request) => {
  * An interceptor to assign a default accept header.
  */
 export const assignDefaultAcceptHeader: Interceptor = async (request) => {
-  // Skip is user has already defined the header.
+  // Skip if user has already defined the header.
   if (request.headers['accept'] !== undefined) {
     return
   }
@@ -24,7 +23,7 @@ export const assignDefaultAcceptHeader: Interceptor = async (request) => {
     return request.headers['accept'] = 'application/json'
   }
 
-  request.headers['accept'] = 'text/plain'
+  request.headers['accept'] = 'text/plain */*'
 }
 
 /**
@@ -62,8 +61,6 @@ export const handleRequestPayload: Interceptor = async (request) => {
  * Determines which executor should be used by default based on the
  * environment. Note that the executor neeeds to be imported dynamically as the
  * other driver would always break the code.
- *
- * TODO: Test this somehow.
  */
 export const determineDefaultExecutor: Interceptor = async (request) => {
   // If the process variable exists and it is in instance of the process class,
@@ -76,38 +73,5 @@ export const determineDefaultExecutor: Interceptor = async (request) => {
   // most likely in a browser.
   if (typeof window !== 'undefined' && typeof XMLHttpRequest !== 'undefined') {
     return request.executor = new Some(new (await import('./executors/XhrExecutor')).XhrExecutor())
-  }
-}
-
-/**
- * An interceptor to build an instance of URL from the provided request.
- */
-export const buildUrlObject: Interceptor = async (request) => {
-  // If the URL already exists, leave it.
-  if (request.url.isSome()) {
-    return
-  }
-
-  try {
-    // Trim slashes from the provided base and path and also consider either
-    // path or base to be the full URL.
-    const base: string = (request.base || '').replace(/^\/*(.*?)\/*$/, '$1')
-    const path: string = (request.path || '').replace(/^\/*(.*)/, '$1')
-
-    const url: URL = new URL(
-      `${base === '' ? '' : path === '' ? base : base + '/'}${path}`,
-    )
-
-    // Assign authentication credentials if not provided manually.
-    url.username = request.authentication.username || url.username
-    url.password = request.authentication.password || url.password
-
-    // Assign desired query parameters.
-    Object.keys(request.query)
-      .forEach(key => url.searchParams.set(key, request.query[key]))
-
-    return request.url = new Some(url)
-  } catch {
-    throw new InvalidRequestUrlException(request)
   }
 }
