@@ -18,6 +18,15 @@ npm i -S awi
 <script src="https://cdn.jsdelivr.net/npm/awi/dist/awi.js"></script>
 ```
 
+## Requirements
+
+- **Node** >= 6.13.0
+- **Chrome** >= 52
+- **Edge** >= 17
+- **Firefox** >= 29
+- **Opera** >= 19
+- **Safari** >= 10
+
 ## Usage
 
 ### Basics
