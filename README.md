@@ -20,12 +20,9 @@ npm i -S awi
 
 ## Requirements
 
-- **Node** >= 6.13.0
-- **Chrome** >= 52
-- **Edge** >= 17
-- **Firefox** >= 29
-- **Opera** >= 19
-- **Safari** >= 10
+| Node   | Chrome | Edge | Firefox | Opera | Safari |
+| :----: | :----: | :--: | :-----: | :---: | :----: |
+| 6.13.0 | 52     | 17   | 29      | 19    | 10     |
 
 ## Usage
 
