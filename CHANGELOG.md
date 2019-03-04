@@ -9,8 +9,7 @@
 
 * Port is now passed to the `HttpExecutor`
 * Changed structure of unit tests
-* Moved URL parsing to an interceptor (#11)
-* Structured graph URL parsing
+* Fixed backward compatibility bugs
 
 **Removed**
 
