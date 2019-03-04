@@ -363,13 +363,12 @@ describe('Awi client', () => {
     they('accept a number as path', async () => {
       // When.
       const response = await mock()
-        .use(async req => req.base = 'https://graph.facebook.com')
         .use(async req => req.path = '0')
         .get<Response>()
 
       // Then.
       expect(response.body.url.unwrap().toString())
-        .to.equal('https://graph.facebook.com/0')
+        .to.equal('http://localhost/0')
     })
 
   })
