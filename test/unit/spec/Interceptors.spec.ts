@@ -1,7 +1,6 @@
 import { expect } from 'chai'
 
 import {
-  buildUrlObject,
   normalizeHeaders,
   handleRequestPayload,
   determineDefaultExecutor,
@@ -28,7 +27,6 @@ describe('Awi\'s default interceptors', () => {
     request = {
       base: '',
       path: '',
-      url: new None(),
       method: Method.GET,
       body: null,
       query: {},
@@ -196,126 +194,6 @@ describe('Awi\'s default interceptors', () => {
     //   expect(request.executor.unwrap())
     //     .to.be.an.instanceOf(XhrExecutor)
     // })
-
-  })
-
-  describe('buildUrlObject interceptor', () => {
-
-    it('correctly builds the url', async () => {
-      // Given.
-      request.base = 'http://server.api'
-      request.path = 'todos'
-
-      // When.
-      await buildUrlObject(request)
-
-      // Then.
-      expect(request.url.unwrap().toString())
-        .to.equal('http://server.api/todos')
-    })
-
-    it('accepts the URL object', async () => {
-      // Given.
-      request.url = new Some(new URL('http://server.api'))
-
-      // When.
-      await buildUrlObject(request)
-
-      // Then.
-      expect(request.url.unwrap().toString())
-        .to.equal('http://server.api/')
-    })
-
-    it('correctly build the url when base is omitted', async () => {
-      // Given.
-      request.path = 'http://server.api/todos'
-
-      // When.
-      await buildUrlObject(request)
-
-      // Then.
-      expect(request.url.unwrap().toString())
-        .to.equal('http://server.api/todos')
-    })
-
-    it('correctly build the url when path is omitted', async () => {
-      // Given.
-      request.base = 'http://server.api/todos'
-
-      // When.
-      await buildUrlObject(request)
-
-      // Then.
-      expect(request.url.unwrap().toString())
-        .to.equal('http://server.api/todos')
-    })
-
-    it('correctly assign query parameters', async () => {
-      // Given.
-      request.base = 'http://server.api'
-      request.query = { awi: 'awesome', key: '123' }
-
-      // When.
-      await buildUrlObject(request)
-
-      // Then.
-      expect(request.url.unwrap().toString())
-        .to.equal('http://server.api/?awi=awesome&key=123')
-    })
-
-    it('correctly encode query parameters', async () => {
-      // Given.
-      request.base = 'http://server.api'
-      request.query = { encoded: '&awi=awesome' }
-
-      // When.
-      await buildUrlObject(request)
-
-      // Then.
-      expect(request.url.unwrap().toString())
-        .to.equal('http://server.api/?encoded=%26awi%3Dawesome')
-    })
-
-    it('reject when the request URL is invalid', async () => {
-      // Given.
-      request.base = 'invalid-url'
-
-      // When.
-      // Then.
-      await expect(buildUrlObject(request))
-        .to.eventually.be.rejectedWith(InvalidRequestUrlException)
-        .and.to.satisfy((e: InvalidRequestUrlException) => e.request.base === 'invalid-url')
-    })
-
-    it('accept a number as path', async () => {
-      // Given.
-      request.base = 'http://server.api'
-      request.path = '0'
-
-      // When.
-      await buildUrlObject(request)
-
-      // Then.
-      expect(request.url.unwrap().toString())
-        .to.equal('http://server.api/0')
-    })
-
-    it('correctly builds a structured graph URL', async () => {
-      // Given.
-      request.base = 'https://graph.com/'
-      request.path = '0'
-      request.query.access_token = '123|123'
-      request.query.fields = 'mentioned_media.media_id(17873440459141021){caption,media_type}'
-
-      // When.
-      await buildUrlObject(request)
-
-      // console.log(request.url.unwrap().toString())
-
-      // Then.
-      expect(request.url.unwrap().toString())
-        .to.equal('https://graph.com/0?access_token=123%7C123&fields=mentioned_media.media_id%2817873440459141021%29%7Bcaption%2Cmedia_type%7D')
-    })
 
   })
 

@@ -16,11 +16,6 @@ export interface Request {
   path: string
 
   /**
-   * The request URL.
-   */
-  url: Optional<URL>
-
-  /**
    * The request method.
    */
   method: Method

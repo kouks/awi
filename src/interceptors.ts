@@ -1,6 +1,5 @@
 import { Interceptor } from '@/types'
 import { Some } from '@bausano/data-structures'
-import { InvalidRequestUrlException } from './exceptions'
 import { ResponseType } from './enumerations/ResponseType'
 
 /**
@@ -74,36 +73,5 @@ export const determineDefaultExecutor: Interceptor = async (request) => {
   // most likely in a browser.
   if (typeof window !== 'undefined' && typeof XMLHttpRequest !== 'undefined') {
     return request.executor = new Some(new (await import('./executors/XhrExecutor')).XhrExecutor())
-  }
-}
-
-/**
- * An interceptor to build an instance of URL from the provided request.
- */
-export const buildUrlObject: Interceptor = async (request) => {
-  // If the URL already exists, leave it.
-  if (request.url.isSome()) {
-    return
-  }
-
-  try {
-    // Create a base URL object.
-    const url: URL = request.path === ''
-      ? new URL(request.base)
-      : request.base === ''
-      ? new URL(request.path)
-      : new URL(request.path, request.base)
-
-    // Assign authentication credentials if not provided manually.
-    url.username = request.authentication.username || url.username
-    url.password = request.authentication.password || url.password
-
-    // Assign desired query parameters.
-    Object.keys(request.query)
-      .forEach(key => url.searchParams.set(key, request.query[key]))
-
-    return request.url = new Some(url)
-  } catch {
-    throw new InvalidRequestUrlException(request)
   }
 }

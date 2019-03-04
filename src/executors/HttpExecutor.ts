@@ -1,3 +1,4 @@
+import { URL } from 'url'
 import * as http from 'http'
 import * as https from 'https'
 import { Request } from '@/contracts/Request'
@@ -19,8 +20,8 @@ export class HttpExecutor extends AbstractExecutor {
    */
   public async send<T extends Response> (request: Request) : Promise<T> {
     return new Promise<T>((resolve, reject) => {
-
-      const url: URL = request.url.expect(new InvalidRequestUrlException(request))
+      // Build the request URL.
+      const url: URL = this.buildUrl(request)
       let requestTimedOut: boolean = false
       let requestTimer: NodeJS.Timeout
 
@@ -114,6 +115,36 @@ export class HttpExecutor extends AbstractExecutor {
       // Send the request.
       client.end(request.body)
     })
+  }
+
+  /**
+   * Build the URL using the node APIs.
+   *
+   * @param request The reuqest to use
+   * @return The URl object
+   * @throws {InvalidRequestUrlException} If the URL can't be built
+   */
+  private buildUrl (request: Request) : URL {
+    try {
+      // Create a base URL object.
+      const url: URL = request.path === ''
+        ? new URL(request.base)
+        : request.base === ''
+        ? new URL(request.path)
+        : new URL(request.path, request.base)
+
+      // Assign authentication credentials if not provided manually.
+      url.username = request.authentication.username || url.username
+      url.password = request.authentication.password || url.password
+
+      // Assign desired query parameters.
+      Object.keys(request.query)
+        .forEach(key => url.searchParams.set(key, request.query[key]))
+
+      return url
+    } catch {
+      throw new InvalidRequestUrlException(request)
+    }
   }
 
 }

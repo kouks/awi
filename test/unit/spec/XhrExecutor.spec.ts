@@ -10,6 +10,7 @@ import {
   RequestFailedException,
   RequestAbortedException,
   RequestTimedOutException,
+  InvalidRequestUrlException,
 } from '@'
 
 import { XhrExecutor } from '@/executors/XhrExecutor'
@@ -322,6 +323,83 @@ describe('XhrExecutor', () => {
       // Then.
       await expect(client)
         .to.eventually.be.rejectedWith(RequestTimedOutException)
+    })
+
+  })
+
+  describe('XhrExecutor\'s URL builder', () => {
+
+    it('correctly builds the url when both base and path are provided', async () => {
+      // Given.
+      server.respondWith((req) => {
+        req.respond(200, {}, JSON.stringify({ url: req.url }))
+      })
+
+      // When.
+      const response = await xhr()
+        .use(async req => req.base = 'http://server.api')
+        .get<Response>('todos')
+
+      // Then.
+      expect(response.body.url)
+        .to.equal('http://server.api/todos')
+    })
+
+    it('correctly builds the url when base is omitted', async () => {
+      // Given.
+      server.respondWith((req) => {
+        req.respond(200, {}, JSON.stringify({ url: req.url }))
+      })
+
+      // When.
+      const response = await xhr()
+        .get<Response>('http://server.api/todos')
+
+      // Then.
+      expect(response.body.url)
+        .to.equal('http://server.api/todos')
+    })
+
+    it('correctly builds the url when path is omitted', async () => {
+      // Given.
+      server.respondWith((req) => {
+        req.respond(200, {}, JSON.stringify({ url: req.url }))
+      })
+
+      // When.
+      const response = await xhr()
+        .use(async req => req.base = 'http://server.api/todos')
+        .get<Response>()
+
+      // Then.
+      expect(response.body.url)
+        .to.equal('http://server.api/todos')
+    })
+
+    it('correctly assigns query parameters', async () => {
+      // Given.
+      server.respondWith((req) => {
+        req.respond(200, {}, JSON.stringify({ url: req.url }))
+      })
+
+      // When.
+      const response = await xhr()
+        .use(async req => req.query = { awi: 'awesome', key: '123' })
+        .get<Response>('http://server.api')
+
+      // Then.
+      expect(response.body.url)
+        .to.equal('http://server.api/?awi=awesome&key=123')
+    })
+
+    it('rejects when the request URL is invalid', async () => {
+      // When.
+      const client = xhr()
+        .get<Response>('invalid-url')
+
+      // Then.
+      await expect(client)
+        .to.eventually.be.rejectedWith(InvalidRequestUrlException)
     })
 
   })

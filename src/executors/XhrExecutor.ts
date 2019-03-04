@@ -22,7 +22,7 @@ export class XhrExecutor extends AbstractExecutor {
       // Open the request.
       xhr.open(
         String(request.method),
-        request.url.expect(new InvalidRequestUrlException(request)).toString(),
+        this.buildUrl(request).toString(),
         true,
       )
 
@@ -107,6 +107,36 @@ export class XhrExecutor extends AbstractExecutor {
       })
 
     return headers
+  }
+
+  /**
+   * Build the URL using the browser APIs.
+   *
+   * @param request The reuqest to use
+   * @return The URl object
+   * @throws {InvalidRequestUrlException} If the URL can't be built
+   */
+  private buildUrl (request: Request) : URL {
+    try {
+      // Create a base URL object.
+      const url: URL = request.path === ''
+        ? new URL(request.base)
+        : request.base === ''
+        ? new URL(request.path)
+        : new URL(request.path, request.base)
+
+      // Assign authentication credentials if not provided manually.
+      url.username = request.authentication.username || url.username
+      url.password = request.authentication.password || url.password
+
+      // Assign desired query parameters.
+      Object.keys(request.query)
+        .forEach(key => url.searchParams.set(key, request.query[key]))
+
+      return url
+    } catch {
+      throw new InvalidRequestUrlException(request)
+    }
   }
 
 }

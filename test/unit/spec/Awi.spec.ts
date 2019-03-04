@@ -20,7 +20,7 @@ describe('Awi client', () => {
   it('has default interceptors', async () => {
     expect((new Awi() as any).interceptors)
       .to.be.an('array')
-      .and.to.have.lengthOf(6)
+      .and.to.have.lengthOf(5)
   })
 
   it('correctly executes interceptors', async () => {

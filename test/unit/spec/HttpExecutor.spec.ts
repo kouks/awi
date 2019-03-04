@@ -9,6 +9,7 @@ import {
   RequestFailedException,
   RequestAbortedException,
   RequestTimedOutException,
+  InvalidRequestUrlException,
 } from '@'
 
 import { HttpExecutor } from '@/executors/HttpExecutor'
@@ -271,6 +272,84 @@ describe('HttpExecutor', () => {
       // Then.
       await expect(client)
         .to.eventually.be.rejectedWith(RequestTimedOutException)
+    })
+
+  })
+
+  describe('HttpExecutor\'s URL builder', () => {
+
+    it('correctly builds the url when both base and path are provided', async () => {
+      // Given.
+      nock('http://server.api')
+        .get('/todos')
+        .reply(200)
+
+      // When.
+      const response = await http()
+        .use(async req => req.base = 'http://server.api')
+        .get<Response>('todos')
+
+      // Then.
+      expect(response.status)
+        .to.equal(200)
+    })
+
+    it('correctly builds the url when base is omitted', async () => {
+      // Given.
+      nock('http://server.api')
+        .get('/todos')
+        .reply(200)
+
+      // When.
+      const response = await http()
+        .get<Response>('http://server.api/todos')
+
+      // Then.
+      expect(response.status)
+        .to.equal(200)
+    })
+
+    it('correctly builds the url when path is omitted', async () => {
+      // Given.
+      nock('http://server.api')
+        .get('/todos')
+        .reply(200)
+
+      // When.
+      const response = await http()
+        .use(async req => req.base = 'http://server.api/todos')
+        .get<Response>()
+
+      // Then.
+      expect(response.status)
+        .to.equal(200)
+    })
+
+    it('correctly assigns query parameters', async () => {
+      // Given.
+      nock('http://server.api')
+        .get('/')
+        .query({ awi: 'awesome', key: '123' })
+        .reply(200)
+
+      // When.
+      const response = await http()
+        .use(async req => req.query = { awi: 'awesome', key: '123' })
+        .get<Response>('http://server.api')
+
+      // Then.
+      expect(response.status)
+        .to.equal(200)
+    })
+
+    it('rejects when the request URL is invalid', async () => {
+      // When.
+      const client = http()
+        .get<Response>('invalid-url')
+
+      // Then.
+      await expect(client)
+        .to.eventually.be.rejectedWith(InvalidRequestUrlException)
     })
 
   })
