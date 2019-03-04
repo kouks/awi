@@ -15,7 +15,7 @@ export const normalizeHeaders: Interceptor = async (request) => {
  * An interceptor to assign a default accept header.
  */
 export const assignDefaultAcceptHeader: Interceptor = async (request) => {
-  // Skip is user has already defined the header.
+  // Skip if user has already defined the header.
   if (request.headers['accept'] !== undefined) {
     return
   }
