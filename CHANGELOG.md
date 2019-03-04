@@ -3,7 +3,14 @@
 
 **Added**
 
-* e2e tests
+* e2e tests scaffold
+
+**Fixed**
+
+* Port is now passed to the `HttpExecutor`
+* Changed structure of unit tests
+* Moved URL parsing to an interceptor (#11)
+* Structured graph URL parsing
 
 **Removed**
 
@@ -16,7 +23,7 @@
 * `body<T>` and `optional<T>` helpers
 * Package documentation
 
-**Fixes**
+**Fixed**
 
 * Executors are now `Optional<Executor>`
 

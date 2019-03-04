@@ -17,6 +17,12 @@ describe('Awi client', () => {
     expect(new Awi).to.be.ok
   })
 
+  it('has default interceptors', async () => {
+    expect((new Awi() as any).interceptors)
+      .to.be.an('array')
+      .and.to.have.lengthOf(6)
+  })
+
   it('correctly executes interceptors', async () => {
     // When.
     const response = await mock()
@@ -191,12 +197,6 @@ describe('Awi client', () => {
       await expect(client)
         .to.eventually.be.rejectedWith(RequestFailedException)
     })
-
-  })
-
-  describe('Awi\'s default interceptors', () => {
-
-    //
 
   })
 

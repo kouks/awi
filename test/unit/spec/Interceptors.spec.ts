@@ -300,6 +300,23 @@ describe('Awi\'s default interceptors', () => {
         .to.equal('http://server.api/0')
     })
 
+    it('correctly builds a structured graph URL', async () => {
+      // Given.
+      request.base = 'https://graph.com/'
+      request.path = '0'
+      request.query.access_token = '123|123'
+      request.query.fields = 'mentioned_media.media_id(17873440459141021){caption,media_type}'
+
+      // When.
+      await buildUrlObject(request)
+
+      // console.log(request.url.unwrap().toString())
+
+      // Then.
+      expect(request.url.unwrap().toString())
+        .to.equal('https://graph.com/0?access_token=123%7C123&fields=mentioned_media.media_id%2817873440459141021%29%7Bcaption%2Cmedia_type%7D')
+    })
+
   })
 
 })

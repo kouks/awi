@@ -87,14 +87,12 @@ export const buildUrlObject: Interceptor = async (request) => {
   }
 
   try {
-    // Trim slashes from the provided base and path and also consider either
-    // path or base to be the full URL.
-    const base: string = (request.base || '').replace(/^\/*(.*?)\/*$/, '$1')
-    const path: string = (request.path || '').replace(/^\/*(.*)/, '$1')
-
-    const url: URL = new URL(
-      `${base === '' ? '' : path === '' ? base : base + '/'}${path}`,
-    )
+    // Create a base URL object.
+    const url: URL = request.path === ''
+      ? new URL(request.base)
+      : request.base === ''
+      ? new URL(request.path)
+      : new URL(request.path, request.base)
 
     // Assign authentication credentials if not provided manually.
     url.username = request.authentication.username || url.username
