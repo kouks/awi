@@ -10,6 +10,7 @@ import {
   RequestFailedException,
   RequestAbortedException,
   RequestTimedOutException,
+  InvalidRequestUrlException,
 } from '@/exceptions'
 
 export class HttpExecutor extends AbstractExecutor {
@@ -20,7 +21,7 @@ export class HttpExecutor extends AbstractExecutor {
   public async send<T extends Response> (request: Request) : Promise<T> {
     return new Promise<T>((resolve, reject) => {
 
-      const url: URL = this.buildRequestUrl(request)
+      const url: URL = request.url.expect(new InvalidRequestUrlException(request))
       let requestTimedOut: boolean = false
       let requestTimer: NodeJS.Timeout
 

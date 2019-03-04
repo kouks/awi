@@ -119,8 +119,7 @@ has an `optional` helper that returns the body of the response as an
 > the promise is still rejected.
 
 ```typescript
-import { Awi } from 'awi'
-import { Optional } from '@bausano/data-structures'
+import { Awi, Optional } from 'awi'
 
 interface Todo {
   title: string

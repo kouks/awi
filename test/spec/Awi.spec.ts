@@ -1,4 +1,5 @@
 import { expect } from 'chai'
+import { it as they } from 'mocha'
 
 import {
   Awi,
@@ -9,6 +10,7 @@ import {
   Response,
   ResponseType,
   RequestFailedException,
+  InvalidRequestUrlException,
 } from '@'
 
 import { Some, None } from '@bausano/data-structures'
@@ -198,7 +200,7 @@ describe('Awi client', () => {
 
   describe('Awi\'s default interceptors', () => {
 
-    it('include an interceptor to normalize header names', async () => {
+    they('include an interceptor to normalize header names', async () => {
       // When.
       const response = await mock()
         .use(async req => req.headers['X-Custom-Header'] = 'test')
@@ -211,7 +213,7 @@ describe('Awi client', () => {
         .not.to.have.property('X-Custom-Header')
     })
 
-    it('include an interceptor to assign a default accept header', async () => {
+    they('include an interceptor to assign a default accept header', async () => {
       // When.
       const response = await mock()
         .use(async req => req.response.type = ResponseType.JSON)
@@ -222,7 +224,7 @@ describe('Awi client', () => {
         .to.have.property('accept').that.equals('application/json')
     })
 
-    it('do not collide with user defined headers', async () => {
+    they('do not collide with user defined headers', async () => {
       // When.
       const response = await mock()
         .use(async req => req.headers['accept'] = 'application/xml')
@@ -233,7 +235,7 @@ describe('Awi client', () => {
         .to.have.property('accept').that.equals('application/xml')
     })
 
-    it('remove any content headers if no body is passed', async () => {
+    they('remove any content headers if no body is passed', async () => {
       // When.
       const response = await mock()
         .use(async req => req.headers['content-type'] = 'application/json')
@@ -247,7 +249,7 @@ describe('Awi client', () => {
         .not.to.have.property('content-ength')
     })
 
-    it('assign correct content type header if body is passed', async () => {
+    they('assign correct content type header if body is passed', async () => {
       // When.
       const response = await mock()
         .use(async req => req.body = { ok: true })
@@ -258,7 +260,7 @@ describe('Awi client', () => {
         .to.have.property('content-type').that.equals('application/json;charset=utf-8')
     })
 
-    it('normalizes the body of the request', async () => {
+    they('normalize the body of the request', async () => {
       // When.
       const response = await mock()
         .use(async req => req.body = { ok: true })
@@ -269,12 +271,114 @@ describe('Awi client', () => {
         .to.equal('{"ok":true}')
     })
 
+    they('remove conflicting authorization headers', async () => {
+      // When.
+      const response = await mock()
+        .use(async req => req.headers['authorization'] = 'Bearer 123')
+        .use(async req => req.authentication = { username: 'awi', password: 'secret' })
+        .post<MockResponse>('resource')
+
+      // Then.
+      expect(response.body.headers['authorization'])
+        .to.be.undefined
+    })
+
+    they('correctly build the url', async () => {
+      // When.
+      const response = await mock()
+        .get<MockResponse>('todos')
+
+      // Then.
+      expect(response.body.url.unwrap().toString())
+        .to.equal('http://localhost/todos')
+    })
+
+    they('accept the URL object', async () => {
+      // When.
+      const response = await mock()
+        .use(async req => req.url = new Some(new URL('http://localhost')))
+        .get<MockResponse>()
+
+      // Then.
+      expect(response.body.url.unwrap().toString())
+        .to.equal('http://localhost/')
+    })
+
+    they('correctly build the url when base is omitted', async () => {
+      // When.
+      const response = await mock()
+        .use(async req => req.base = '')
+        .get<MockResponse>('http://server.api/todos')
+
+      // Then.
+      expect(response.body.url.unwrap().toString())
+        .to.equal('http://server.api/todos')
+    })
+
+    they('correctly build the url when path is omitted', async () => {
+      // When.
+      const response = await mock()
+        .use(async req => req.base = 'http://server.api/todos')
+        .get<MockResponse>()
+
+      // Then.
+      expect(response.body.url.unwrap().toString())
+        .to.equal('http://server.api/todos')
+    })
+
+    they('correctly assign query parameters', async () => {
+      // When.
+      const response = await mock()
+        .use(async req => req.query = { awi: 'awesome', key: '123' })
+        .get<MockResponse>()
+
+      // Then.
+      expect(response.body.url.unwrap().toString())
+        .to.equal('http://localhost/?awi=awesome&key=123')
+    })
+
+    they('correctly encode query parameters', async () => {
+      // When.
+      const response = await mock()
+        .use(async req => req.query = { encoded: '&awi=awesome' })
+        .get<MockResponse>()
+
+      // Then.
+      expect(response.body.url.unwrap().toString())
+        .to.equal('http://localhost/?encoded=%26awi%3Dawesome')
+    })
+
+    they('reject when the request URL is invalid', async () => {
+      // When.
+      const process = mock()
+        .use(async req => req.base = '')
+        .get<Response>('invalid-url')
+
+      // Then.
+      await expect(process)
+        .to.eventually.be.rejectedWith(InvalidRequestUrlException)
+        .and.to.satisfy((e: InvalidRequestUrlException) => e.request.path === 'invalid-url')
+    })
+
+    they('accept a number as path', async () => {
+      // When.
+      const response = await mock()
+        .use(async req => req.base = 'https://graph.facebook.com')
+        .use(async req => req.path = '0')
+        .get<Response>()
+
+      // Then.
+      expect(response.body.url.unwrap().toString())
+        .to.equal('https://graph.facebook.com/0')
+    })
+
   })
 
 })
 
 const mock = () => new Awi()
   .use(async req => req.executor = new Some(new MockExecutor))
+  .use(async req => req.base = 'http://localhost')
 
 class MockExecutor implements Executor {
   async send<T extends Response> (request: Request) : Promise<T> {
