@@ -4,6 +4,7 @@ import { it as they } from 'mocha'
 import {
   Awi,
   Method,
+  Status,
   Request,
   Executor,
   Response,
@@ -212,7 +213,7 @@ describe('Awi client', () => {
         .not.to.have.property('X-Custom-Header')
     })
 
-    they('include an interceptor to assign a default accept header for json', async () => {
+    they('include an interceptor to assign a default accept header', async () => {
       // When.
       const response = await mock()
         .use(async req => req.response.type = ResponseType.JSON)
@@ -223,15 +224,15 @@ describe('Awi client', () => {
         .to.have.property('accept').that.equals('application/json')
     })
 
-    they('include an interceptor to assign a default accept header for other types', async () => {
+    they('include an interceptor to assign a default accept header', async () => {
       // When.
       const response = await mock()
-        .use(async req => req.response.type = ResponseType.TEXT)
+        .use(async req => req.response.type = ResponseType.JSON)
         .get<MockResponse>('resource')
 
       // Then.
       expect(response.body.headers)
-        .to.have.property('accept').that.equals('text/plain */*')
+        .to.have.property('accept').that.equals('application/json')
     })
 
     they('do not collide with user defined headers', async () => {
@@ -392,20 +393,20 @@ const mock = () => new Awi()
 class MockExecutor implements Executor {
   async send<T extends Response> (request: Request) : Promise<T> {
     if (request.path === 'error') {
-      throw new RequestFailedException(request, new Error)
+      throw new RequestFailedException(request)
     }
 
     if (request.path === 'invalid') {
       throw {
         body: request,
-        status: 400,
+        status: Status.BAD_REQUEST,
         headers: {}
       } as T
     }
 
     return {
       body: request,
-      status: 200,
+      status: Status.OK,
       headers: {}
     } as T
   }

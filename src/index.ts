@@ -13,3 +13,6 @@ export { Executor } from '@/contracts/Executor'
 export { Response } from '@/contracts/Response'
 
 export { AbstractExecutor } from '@/executors/AbstractExecutor'
+
+// Export optional from the data structures package.
+export { Optional, Some, None } from '@bausano/data-structures'

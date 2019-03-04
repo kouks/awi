@@ -7,10 +7,12 @@ import { ResponseType } from '@/enumerations/ResponseType'
 import { Optional, Some, None } from '@bausano/data-structures'
 
 import {
+  buildUrlObject,
   normalizeHeaders,
   handleRequestPayload,
   determineDefaultExecutor,
   assignDefaultAcceptHeader,
+  removeConflictingAuthorizationHeader,
 } from '@/interceptors'
 
 import {
@@ -34,8 +36,10 @@ export class Awi implements Client {
     priority: number,
   }> = [
     { interceptor: determineDefaultExecutor, priority: 10 },
+    { interceptor: buildUrlObject, priority: 1 },
     { interceptor: normalizeHeaders, priority: 1 },
     { interceptor: assignDefaultAcceptHeader, priority: 1 },
+    { interceptor: removeConflictingAuthorizationHeader, priority: 1 },
     { interceptor: handleRequestPayload, priority: 1 },
   ]
 
@@ -47,6 +51,7 @@ export class Awi implements Client {
   private request: Request = {
     base: '',
     path: '',
+    url: new None(),
     method: Method.GET,
     body: null,
     query: {},

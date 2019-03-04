@@ -6,6 +6,7 @@ import {
   RequestFailedException,
   RequestAbortedException,
   RequestTimedOutException,
+  InvalidRequestUrlException,
 } from '@/exceptions'
 
 export class XhrExecutor extends AbstractExecutor {
@@ -21,7 +22,7 @@ export class XhrExecutor extends AbstractExecutor {
       // Open the request.
       xhr.open(
         String(request.method),
-        this.buildRequestUrl(request).toString(),
+        request.url.expect(new InvalidRequestUrlException(request)).toString(),
         true,
       )
 
