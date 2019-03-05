@@ -402,6 +402,21 @@ describe('XhrExecutor', () => {
         .to.eventually.be.rejectedWith(InvalidRequestUrlException)
     })
 
+    it('rejects when the response status is 0', async () => {
+      // Given.
+      server.respondWith((req) => {
+        req.respond(0, {}, '')
+      })
+
+      // When.
+      const client = xhr()
+        .get<Response>('http://server.api')
+
+      // Then.
+      await expect(client)
+        .to.eventually.be.rejectedWith(RequestFailedException)
+    })
+
   })
 
 })

@@ -42,6 +42,12 @@ export class XhrExecutor extends AbstractExecutor {
           return
         }
 
+        // If the request status is 0, the request errorred due to a timeout or
+        // cors and we let the onerror hook handle it.
+        if (xhr.status === 0) {
+          return
+        }
+
         this.finalize<T>(
           resolve,
           reject,
