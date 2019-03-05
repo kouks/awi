@@ -352,6 +352,22 @@ describe('HttpExecutor', () => {
         .to.eventually.be.rejectedWith(InvalidRequestUrlException)
     })
 
+    it('correctly builds base with no ending slash is provided', async () => {
+      // Given.
+      nock('http://server.api')
+        .get('/p/a/t/h')
+        .reply(200)
+
+      // When.
+      const response = await http()
+        .use(async req => req.base = 'http://server.api/p/a')
+        .get<Response>('t/h')
+
+      // Then.
+      expect(response.status)
+        .to.equal(200)
+    })
+
   })
 
 })
