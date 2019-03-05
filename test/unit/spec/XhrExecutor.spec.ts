@@ -417,6 +417,22 @@ describe('XhrExecutor', () => {
         .to.eventually.be.rejectedWith(RequestFailedException)
     })
 
+    it('correctly builds base with no ending slash is provided', async () => {
+      // Given.
+      server.respondWith((req) => {
+        req.respond(200, {}, JSON.stringify({ url: req.url }))
+      })
+
+      // When.
+      const response = await xhr()
+        .use(async req => req.base = 'http://server.api/p/a')
+        .get<Response>('t/h')
+
+      // Then.
+      expect(response.body.url)
+      .to.equal('http://server.api/p/a/t/h')
+    })
+
   })
 
 })
