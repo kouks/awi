@@ -11,6 +11,7 @@ export abstract class AbstractExecutor implements Executor {
 
   /**
    * Finalize the execution of a request.
+   * TODO: Can this be simplified?
    *
    * @param resolve A callback that resolves the request promise
    * @param reject A callback that reject the request promise

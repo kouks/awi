@@ -43,8 +43,6 @@ export class Awi implements Client {
 
   /**
    * The current state of the request object.
-   *
-   * TODO: This might be extracted
    */
   private request: Request = {
     base: '',

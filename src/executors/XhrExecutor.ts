@@ -42,7 +42,6 @@ export class XhrExecutor extends AbstractExecutor {
           return
         }
 
-        // TODO: Response type stream?
         this.finalize<T>(
           resolve,
           reject,
