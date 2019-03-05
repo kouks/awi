@@ -1,6 +1,6 @@
 {
   "name": "awi",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Versatile, modern and lightweight http client based on promises.",
   "main": "build/index.js",
   "types": "types/index.d.ts",
