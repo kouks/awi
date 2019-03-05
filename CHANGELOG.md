@@ -1,4 +1,10 @@
 
+## 0.0.9
+
+**Fixed**
+
+* URL path building bug
+
 ## 0.0.8
 
 **Fixed**
