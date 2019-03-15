@@ -5,7 +5,10 @@ const IgnorePlugin = require('webpack').IgnorePlugin
 module.exports = {
   node: {
     process: false,
-    Buffer: false,
+    Buffer: false
+  },
+  optimization: {
+    usedExports: true
   },
   devtool: 'source-map',
   plugins: [

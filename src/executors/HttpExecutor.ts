@@ -131,9 +131,7 @@ export class HttpExecutor extends AbstractExecutor {
       const base: string = (request.base || '').replace(/^\/*(.*?)\/*$/, '$1')
       const path: string = (request.path || '').replace(/^\/*(.*)/, '$1')
 
-      const url: URL = new URL(
-        `${base === '' ? '' : path === '' ? base : base + '/'}${path}`,
-      )
+      const url: URL = new URL(`${base === '' ? '' : path === '' ? base : base + '/'}${path}`)
 
       // Assign authentication credentials if not provided manually.
       url.username = request.authentication.username || url.username
