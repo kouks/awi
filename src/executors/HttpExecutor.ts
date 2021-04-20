@@ -14,11 +14,10 @@ import {
 } from '@/exceptions'
 
 export class HttpExecutor extends AbstractExecutor {
-
   /**
    * {@inheritdoc}
    */
-  public async send<T extends Response> (request: Request) : Promise<T> {
+  public async send<T extends Response>(request: Request): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       // Build the request URL.
       const url: URL = this.buildUrl(request)
@@ -35,61 +34,64 @@ export class HttpExecutor extends AbstractExecutor {
         delete request.headers['authorization']
       }
 
-      const client: http.ClientRequest = protocol.request({
-        hostname: url.hostname,
-        port: url.port,
-        protocol: url.protocol,
-        path: `${url.pathname}${url.search}`,
-        method: String(request.method),
-        headers: request.headers,
-        auth: `${url.username}:${url.password}`,
-      }, (response: http.IncomingMessage) => {
-        // Do not handle the response if the request has timed out.
-        if (requestTimedOut) {
-          return
-        }
-
-        // Clear the request timer.
-        clearTimeout(requestTimer)
-
-        // If the request was aborted, throw an exception.
-        if (client.aborted) {
-          throw new RequestAbortedException(request)
-        }
-
-        // The response stream buffer.
-        const buffer: Buffer[] = []
-
-        // Handle a chunk of data.
-        response.on('data', chunk => buffer.push(chunk))
-
-        // Handle any errors thrown while reading the data.
-        response.on('error', (reason) => {
+      const client: http.ClientRequest = protocol.request(
+        {
+          hostname: url.hostname,
+          port: url.port,
+          protocol: url.protocol,
+          path: `${url.pathname}${url.search}`,
+          method: String(request.method),
+          headers: request.headers,
+          auth: `${url.username}:${url.password}`,
+        },
+        (response: http.IncomingMessage) => {
+          // Do not handle the response if the request has timed out.
           if (requestTimedOut) {
             return
           }
 
-          throw new RequestFailedException(request, reason)
-        })
+          // Clear the request timer.
+          clearTimeout(requestTimer)
 
-        // Finalize the stream.
-        response.on('end', () => {
-          // The default response body is of any type.
-          const body: any = {
-            [ResponseType.BUFFER]: (data: Buffer) => data,
-            [ResponseType.JSON]: (data: Buffer) => JSON.parse(data.toString(request.response.encoding) || 'null'),
-            [ResponseType.TEXT]: (data: Buffer) => data.toString(request.response.encoding),
-          }[request.response.type](Buffer.concat(buffer))
+          // If the request was aborted, throw an exception.
+          if (client.aborted) {
+            throw new RequestAbortedException(request)
+          }
 
-          this.finalize<T>(
-            resolve,
-            reject,
-            body,
-            response.statusCode as number,
-            response.headers as { [key: string]: string },
-          )
-        })
-      })
+          // The response stream buffer.
+          const buffer: Buffer[] = []
+
+          // Handle a chunk of data.
+          response.on('data', (chunk) => buffer.push(chunk))
+
+          // Handle any errors thrown while reading the data.
+          response.on('error', (reason) => {
+            if (requestTimedOut) {
+              return
+            }
+
+            throw new RequestFailedException(request, reason)
+          })
+
+          // Finalize the stream.
+          response.on('end', () => {
+            // The default response body is of any type.
+            const body: any = {
+              [ResponseType.BUFFER]: (data: Buffer) => data,
+              [ResponseType.JSON]: (data: Buffer) => JSON.parse(data.toString(request.response.encoding) || 'null'),
+              [ResponseType.TEXT]: (data: Buffer) => data.toString(request.response.encoding),
+            }[request.response.type](Buffer.concat(buffer))
+
+            this.finalize<T>(
+              resolve,
+              reject,
+              body,
+              response.statusCode as number,
+              response.headers as Record<string, string>
+            )
+          })
+        }
+      )
 
       // Handle any errors during the request.
       client.on('error', (reason) => {
@@ -124,7 +126,7 @@ export class HttpExecutor extends AbstractExecutor {
    * @return The URl object
    * @throws {InvalidRequestUrlException} If the URL can't be built
    */
-  private buildUrl (request: Request) : URL {
+  private buildUrl(request: Request): URL {
     try {
       // Trim slashes from the provided base and path and also consider either
       // path or base to be the full URL.
@@ -138,13 +140,11 @@ export class HttpExecutor extends AbstractExecutor {
       url.password = request.authentication.password || url.password
 
       // Assign desired query parameters.
-      Object.keys(request.query)
-        .forEach(key => url.searchParams.set(key, request.query[key]))
+      Object.keys(request.query).forEach((key) => url.searchParams.set(key, request.query[key]))
 
       return url
     } catch {
       throw new InvalidRequestUrlException(request)
     }
   }
-
 }

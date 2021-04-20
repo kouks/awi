@@ -2,7 +2,6 @@ import { Request } from '@/contracts/Request'
 import { Response } from '@/contracts/Response'
 
 export interface Executor {
-
   /**
    * Send the requst and receive the typed response.
    *
@@ -10,6 +9,5 @@ export interface Executor {
    * @return The desired response
    * @throws {HttpException} If something goes wrong when executing the request
    */
-  send<T extends Response> (request: Request) : Promise<T>
-
+  send<T extends Response>(request: Request): Promise<T>
 }

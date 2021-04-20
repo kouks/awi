@@ -1,9 +1,7 @@
 import { expect } from 'chai'
 import { start } from '../server'
 
-import {
-  Awi,
-} from '@'
+import { Awi } from '@'
 
 describe('[e2e] Node client', () => {
   let server: any
@@ -23,11 +21,8 @@ describe('[e2e] Node client', () => {
     const response = await api().get()
 
     // Then.
-    expect(response.body)
-      .to.deep.equal({ message: 'Hello World'})
+    expect(response.body).to.deep.equal({ message: 'Hello World' })
   })
-
 })
 
-const api = () => new Awi()
-  .use(async req => req.base = 'http://localhost:3000')
+const api = () => new Awi().use(async (req) => (req.base = 'http://localhost:3000'))

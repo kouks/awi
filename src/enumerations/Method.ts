@@ -1,4 +1,3 @@
-
 export enum Method {
   GET = 'GET',
   PUT = 'PUT',

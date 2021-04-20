@@ -14,12 +14,9 @@ import {
   removeConflictingAuthorizationHeader,
 } from '@/interceptors'
 
-import {
-  NoExecutorProvidedException,
-} from './exceptions'
+import { NoExecutorProvidedException } from './exceptions'
 
 export class Awi implements Client {
-
   /**
    * The array of interceptors to be applied.
    */
@@ -27,12 +24,12 @@ export class Awi implements Client {
     /**
      * The interceptor to be used.
      */
-    interceptor: Interceptor,
+    interceptor: Interceptor
 
     /**
      * The interceptor's priority.
      */
-    priority: number,
+    priority: number
   }> = [
     { interceptor: determineDefaultExecutor, priority: 10 },
     { interceptor: normalizeHeaders, priority: 1 },
@@ -66,7 +63,7 @@ export class Awi implements Client {
   /**
    * {@inheritdoc}
    */
-  public use (interceptor: Interceptor, priority: number = 5) : Client {
+  public use(interceptor: Interceptor, priority: number = 5): Client {
     this.interceptors.push({ interceptor, priority })
 
     return this
@@ -75,82 +72,80 @@ export class Awi implements Client {
   /**
    * {@inheritdoc}
    */
-  public async send<T extends Response> () : Promise<T> {
-    return this.interceptors.sort((a, b) => b.priority - a.priority)
-      .map(bundle => bundle.interceptor)
-      .reduce(
-        (carry, intercept) => carry.then(() => intercept(this.request)),
-        Promise.resolve(),
-      ).then(() => this.request.executor.expect(new NoExecutorProvidedException()).send<T>(this.request))
+  public async send<T extends Response>(): Promise<T> {
+    return this.interceptors
+      .sort((a, b) => b.priority - a.priority)
+      .map((bundle) => bundle.interceptor)
+      .reduce((carry, intercept) => carry.then(() => intercept(this.request)), Promise.resolve())
+      .then(() => this.request.executor.expect(new NoExecutorProvidedException()).send<T>(this.request))
   }
 
   /**
    * {@inheritdoc}
    */
-  public async get<T extends Response> (path?: string) : Promise<T> {
+  public async get<T extends Response>(path?: string): Promise<T> {
     return this.prepare(Method.GET, path).send<T>()
   }
 
   /**
    * {@inheritdoc}
    */
-  public async delete<T extends Response> (path?: string) : Promise<T> {
+  public async delete<T extends Response>(path?: string): Promise<T> {
     return this.prepare(Method.DELETE, path).send<T>()
   }
 
   /**
    * {@inheritdoc}
    */
-  public async head<T extends Response> (path?: string) : Promise<T> {
+  public async head<T extends Response>(path?: string): Promise<T> {
     return this.prepare(Method.HEAD, path).send<T>()
   }
 
   /**
    * {@inheritdoc}
    */
-  public async options<T extends Response> (path?: string) : Promise<T> {
+  public async options<T extends Response>(path?: string): Promise<T> {
     return this.prepare(Method.OPTIONS, path).send<T>()
   }
 
   /**
    * {@inheritdoc}
    */
-  public async post<T extends Response> (path?: string, body?: any) : Promise<T> {
+  public async post<T extends Response>(path?: string, body?: any): Promise<T> {
     return this.prepare(Method.POST, path, body).send<T>()
   }
 
   /**
    * {@inheritdoc}
    */
-  public async put<T extends Response> (path?: string, body?: any) : Promise<T> {
+  public async put<T extends Response>(path?: string, body?: any): Promise<T> {
     return this.prepare(Method.PUT, path, body).send<T>()
   }
 
   /**
    * {@inheritdoc}
    */
-  public async patch<T extends Response> (path?: string, body?: any) : Promise<T> {
+  public async patch<T extends Response>(path?: string, body?: any): Promise<T> {
     return this.prepare(Method.PATCH, path, body).send<T>()
   }
 
   /**
    * {@inheritdoc}
    */
-  public async body<T> (path?: string) : Promise<T> {
+  public async body<T>(path?: string): Promise<T> {
     if (path !== undefined) {
-      this.use(async req => req.path = path)
+      this.use(async (req) => (req.path = path))
     }
 
-    return this.send<{ body: T } & Response>()
-      .then(response => response.body)
+    return this.send<{ body: T } & Response>().then((response) => response.body)
   }
 
   /**
    * {@inheritdoc}
    */
-  public async optional<T> (path?: string) : Promise<Optional<T>> {
+  public async optional<T>(path?: string): Promise<Optional<T>> {
     return this.body<T>(path)
-      .then(body => new Some<T>(body))
+      .then((body) => new Some<T>(body))
       .catch((error) => {
         if (error instanceof Error) {
           throw error
@@ -169,16 +164,15 @@ export class Awi implements Client {
    * @param body The request body
    * @return Awi instance for chaining
    */
-  private prepare (method: Method, path?: string, body?: any) : Client {
+  private prepare(method: Method, path?: string, body?: any): Client {
     if (path !== undefined) {
-      this.use(async req => req.path = path)
+      this.use(async (req) => (req.path = path))
     }
 
     if (body !== undefined) {
-      this.use(async req => req.body = body)
+      this.use(async (req) => (req.body = body))
     }
 
-    return this.use(async req => req.method = method)
+    return this.use(async (req) => (req.method = method))
   }
-
 }

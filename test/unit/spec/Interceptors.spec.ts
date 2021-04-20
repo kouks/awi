@@ -8,19 +8,12 @@ import {
   removeConflictingAuthorizationHeader,
 } from '@/interceptors'
 
-import {
-  None,
-  Some,
-  Method,
-  Request,
-  ResponseType,
-  InvalidRequestUrlException,
-} from '@'
+import { None, Some, Method, Request, ResponseType, InvalidRequestUrlException } from '@'
 
 import { XhrExecutor } from '@/executors/XhrExecutor'
 import { HttpExecutor } from '@/executors/HttpExecutor'
 
-describe('Awi\'s default interceptors', () => {
+describe("Awi's default interceptors", () => {
   let request: Request
 
   beforeEach(() => {
@@ -45,7 +38,6 @@ describe('Awi\'s default interceptors', () => {
   })
 
   describe('normalizeHeaders interceptor', () => {
-
     it('normalizes header names', async () => {
       // Given.
       request.headers['X-Custom-Header'] = 'test'
@@ -54,16 +46,12 @@ describe('Awi\'s default interceptors', () => {
       await normalizeHeaders(request)
 
       // Then.
-      expect(request.headers)
-        .to.have.property('x-custom-header').that.equals('test')
-      expect(request.headers)
-        .not.to.have.property('X-Custom-Header')
+      expect(request.headers).to.have.property('x-custom-header').that.equals('test')
+      expect(request.headers).not.to.have.property('X-Custom-Header')
     })
-
   })
 
   describe('assignDefaultAcceptHeader interceptor', () => {
-
     it('assigns default accept header for json response type', async () => {
       // Given.
       request.response.type = ResponseType.JSON
@@ -72,8 +60,7 @@ describe('Awi\'s default interceptors', () => {
       await assignDefaultAcceptHeader(request)
 
       // Then.
-      expect(request.headers)
-        .to.have.property('accept').that.equals('application/json')
+      expect(request.headers).to.have.property('accept').that.equals('application/json')
     })
 
     it('assigns default accept header for other response types', async () => {
@@ -84,8 +71,7 @@ describe('Awi\'s default interceptors', () => {
       await assignDefaultAcceptHeader(request)
 
       // Then.
-      expect(request.headers)
-        .to.have.property('accept').that.equals('text/plain */*')
+      expect(request.headers).to.have.property('accept').that.equals('text/plain */*')
     })
 
     it('does not collide with user defined headers', async () => {
@@ -96,14 +82,11 @@ describe('Awi\'s default interceptors', () => {
       await assignDefaultAcceptHeader(request)
 
       // Then.
-      expect(request.headers)
-        .to.have.property('accept').that.equals('application/xml')
+      expect(request.headers).to.have.property('accept').that.equals('application/xml')
     })
-
   })
 
   describe('removeConflictingAuthorizationHeader interceptor', () => {
-
     it('removes conflicting authorization headers', async () => {
       // Given.
       request.headers['authorization'] = 'Bearer 123'
@@ -113,8 +96,7 @@ describe('Awi\'s default interceptors', () => {
       await removeConflictingAuthorizationHeader(request)
 
       // Then.
-      expect(request.headers['authorization'])
-        .to.be.undefined
+      expect(request.headers['authorization']).to.be.undefined
     })
 
     it('leaves the authorization header if no authentication was provided', async () => {
@@ -125,14 +107,11 @@ describe('Awi\'s default interceptors', () => {
       await removeConflictingAuthorizationHeader(request)
 
       // Then.
-      expect(request.headers['authorization'])
-        .to.be.equal('Bearer 123')
+      expect(request.headers['authorization']).to.be.equal('Bearer 123')
     })
-
   })
 
   describe('handleRequestPayload interceptor', () => {
-
     it('removes any content headers if no body is passed', async () => {
       // Given.
       request.headers['content-type'] = 'application/json'
@@ -142,10 +121,8 @@ describe('Awi\'s default interceptors', () => {
       await handleRequestPayload(request)
 
       // Then.
-      expect(request.headers)
-        .not.to.have.property('content-type')
-      expect(request.headers)
-        .not.to.have.property('content-ength')
+      expect(request.headers).not.to.have.property('content-type')
+      expect(request.headers).not.to.have.property('content-ength')
     })
 
     it('assigns correct content type header if body is passed', async () => {
@@ -156,8 +133,7 @@ describe('Awi\'s default interceptors', () => {
       await handleRequestPayload(request)
 
       // Then.
-      expect(request.headers)
-        .to.have.property('content-type').that.equals('application/json;charset=utf-8')
+      expect(request.headers).to.have.property('content-type').that.equals('application/json;charset=utf-8')
     })
 
     it('normalizes the body of the request', async () => {
@@ -168,21 +144,17 @@ describe('Awi\'s default interceptors', () => {
       await handleRequestPayload(request)
 
       // Then.
-      expect(request.body)
-        .to.equal('{"ok":true}')
+      expect(request.body).to.equal('{"ok":true}')
     })
-
   })
 
   describe('determineDefaultExecutor interceptor', () => {
-
     it('correctly determines a node environment', async () => {
       // When.
       await determineDefaultExecutor(request)
 
       // Then.
-      expect(request.executor.unwrap())
-        .to.be.an.instanceOf(HttpExecutor)
+      expect(request.executor.unwrap()).to.be.an.instanceOf(HttpExecutor)
     })
 
     // TODO: Figure this out.
@@ -194,7 +166,5 @@ describe('Awi\'s default interceptors', () => {
     //   expect(request.executor.unwrap())
     //     .to.be.an.instanceOf(XhrExecutor)
     // })
-
   })
-
 })

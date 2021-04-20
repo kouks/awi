@@ -10,21 +10,16 @@ import {
 } from '@/exceptions'
 
 export class XhrExecutor extends AbstractExecutor {
-
   /**
    * {@inheritdoc}
    */
-  public async send<T extends Response> (request: Request) : Promise<T> {
+  public async send<T extends Response>(request: Request): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       // Create a new instance of the XML HTTP request.
       const xhr: XMLHttpRequest = new XMLHttpRequest()
 
       // Open the request.
-      xhr.open(
-        String(request.method),
-        this.buildUrl(request).toString(),
-        true,
-      )
+      xhr.open(String(request.method), this.buildUrl(request).toString(), true)
 
       // Assign the timeout, 0 (which is default) is no timeout.
       xhr.timeout = request.timeout
@@ -33,8 +28,7 @@ export class XhrExecutor extends AbstractExecutor {
       xhr.responseType = String(request.response.type) as XMLHttpRequestResponseType
 
       // Assign headers to the request.
-      Object.keys(request.headers)
-        .forEach(key => xhr.setRequestHeader(key, request.headers[key]))
+      Object.keys(request.headers).forEach((key) => xhr.setRequestHeader(key, request.headers[key]))
 
       // Assign a listener for the request state change.
       xhr.onreadystatechange = () => {
@@ -48,13 +42,7 @@ export class XhrExecutor extends AbstractExecutor {
           return
         }
 
-        this.finalize<T>(
-          resolve,
-          reject,
-          xhr.response,
-          xhr.status,
-          this.parseHeaders(xhr),
-        )
+        this.finalize<T>(resolve, reject, xhr.response, xhr.status, this.parseHeaders(xhr))
       }
 
       // When the request is explicitly aborted.
@@ -77,21 +65,36 @@ export class XhrExecutor extends AbstractExecutor {
    * @param raw The raw state of the request
    * @return The parsed headers
    */
-  private parseHeaders (raw: XMLHttpRequest) : { [key: string]: string } {
+  private parseHeaders(raw: XMLHttpRequest): Record<string, string> {
     // Headers that we do not want to concatenate. Thanks axios.
     const doNotConcatenate: string[] = [
-      'age', 'authorization', 'content-length', 'content-type', 'etag',
-      'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
-      'last-modified', 'location', 'max-forwards', 'proxy-authorization',
-      'referer', 'retry-after', 'user-agent',
+      'age',
+      'authorization',
+      'content-length',
+      'content-type',
+      'etag',
+      'expires',
+      'from',
+      'host',
+      'if-modified-since',
+      'if-unmodified-since',
+      'last-modified',
+      'location',
+      'max-forwards',
+      'proxy-authorization',
+      'referer',
+      'retry-after',
+      'user-agent',
     ]
 
     // Initialize the header map.
-    const headers: { [key: string]: string } = {}
+    const headers: Record<string, string> = {}
 
     // Populate the header map.
-    raw.getAllResponseHeaders().split('\n')
-      .map(header => header.split(':'))
+    raw
+      .getAllResponseHeaders()
+      .split('\n')
+      .map((header) => header.split(':'))
       .forEach((header) => {
         // If the header is invalid, skip.
         if (header.length !== 2) {
@@ -102,13 +105,11 @@ export class XhrExecutor extends AbstractExecutor {
         const value: string = header[1].trim()
 
         // If the header already exists and we do not want to concatenate, skip.
-        if (headers[key] !== undefined && doNotConcatenate.find(i => i === key) !== undefined) {
+        if (headers[key] !== undefined && doNotConcatenate.find((i) => i === key) !== undefined) {
           return
         }
 
-        return headers[key] === undefined
-          ? headers[key] = value
-          : headers[key] = `${headers[key]}, ${value}`
+        return headers[key] === undefined ? (headers[key] = value) : (headers[key] = `${headers[key]}, ${value}`)
       })
 
     return headers
@@ -121,7 +122,7 @@ export class XhrExecutor extends AbstractExecutor {
    * @return The URl object
    * @throws {InvalidRequestUrlException} If the URL can't be built
    */
-  private buildUrl (request: Request) : URL {
+  private buildUrl(request: Request): URL {
     try {
       // Trim slashes from the provided base and path and also consider either
       // path or base to be the full URL.
@@ -135,13 +136,11 @@ export class XhrExecutor extends AbstractExecutor {
       url.password = request.authentication.password || url.password
 
       // Assign desired query parameters.
-      Object.keys(request.query)
-        .forEach(key => url.searchParams.set(key, request.query[key]))
+      Object.keys(request.query).forEach((key) => url.searchParams.set(key, request.query[key]))
 
       return url
     } catch {
       throw new InvalidRequestUrlException(request)
     }
   }
-
 }

@@ -4,7 +4,6 @@ import { Optional } from '@bausano/data-structures'
 import { ResponseType } from '@/enumerations/ResponseType'
 
 export interface Request {
-
   /**
    * The request base URL.
    */
@@ -29,12 +28,12 @@ export interface Request {
   /**
    * The query added to the request.
    */
-  query: { [key: string]: string }
+  query: Record<string, string>
 
   /**
    * The headers sent with the request.
    */
-  headers: { [key: string]: string }
+  headers: Record<string, string>
 
   /**
    * The request timeout in milliseconds.
@@ -45,21 +44,20 @@ export interface Request {
    * The authentication object.
    */
   authentication: {
-    username: string | null,
-    password: string | null,
+    username: string | null
+    password: string | null
   }
 
   /**
    * The response configuration object.
    */
   response: {
-    type: ResponseType,
-    encoding: string,
+    type: ResponseType
+    encoding: string
   }
 
   /**
    * The executor instance to perform the request.
    */
   executor: Optional<Executor>
-
 }
