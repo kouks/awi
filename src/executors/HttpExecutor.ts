@@ -24,14 +24,12 @@ export class HttpExecutor extends AbstractExecutor {
       let requestTimedOut: boolean = false
       let requestTimer: NodeJS.Timeout
 
-      // Unfortunately, node types don't provide us with declarations for the
-      // http and https libraries.
-      const protocol: any = url.protocol === 'https:' ? https : http
+      const protocol: typeof https | typeof http = url.protocol === 'https:' ? https : http
 
       // We need to remove the authentication header to avoid any collision if
       // basic auth was provided.
       if (url.username || url.password) {
-        delete request.headers['authorization']
+        delete request.headers.authorization
       }
 
       const client: http.ClientRequest = protocol.request(
@@ -78,7 +76,15 @@ export class HttpExecutor extends AbstractExecutor {
             // The default response body is of any type.
             const body: any = {
               [ResponseType.BUFFER]: (data: Buffer) => data,
-              [ResponseType.JSON]: (data: Buffer) => JSON.parse(data.toString(request.response.encoding) || 'null'),
+              [ResponseType.JSON]: (data: Buffer) => {
+                const feed = data.toString(request.response.encoding) || 'null'
+
+                try {
+                  return JSON.parse(feed)
+                } catch {
+                  return feed
+                }
+              },
               [ResponseType.TEXT]: (data: Buffer) => data.toString(request.response.encoding),
             }[request.response.type](Buffer.concat(buffer))
 

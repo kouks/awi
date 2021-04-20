@@ -116,6 +116,17 @@ describe('HttpExecutor', () => {
       expect(response.body).to.have.property('ok').that.is.true
     })
 
+    it('defaults to text if it cannot parse a json response', async () => {
+      // Given.
+      nock('http://server.api').get('/').reply(200, 'text')
+
+      // When.
+      const response = await http().get<Response>('http://server.api')
+
+      // Then.
+      expect(response.body).equal('text')
+    })
+
     it('correctly parses a text response', async () => {
       // Given.
       nock('http://server.api').get('/').reply(200, { ok: true })

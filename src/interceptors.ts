@@ -17,15 +17,15 @@ export const normalizeHeaders: Interceptor = async (request) => {
  */
 export const assignDefaultAcceptHeader: Interceptor = async (request) => {
   // Skip if user has already defined the header.
-  if (request.headers['accept'] !== undefined) {
+  if (request.headers.accept !== undefined) {
     return
   }
 
   if (request.response.type === ResponseType.JSON) {
-    return (request.headers['accept'] = 'application/json')
+    return (request.headers.accept = 'application/json')
   }
 
-  request.headers['accept'] = 'text/plain */*'
+  request.headers.accept = 'text/plain */*'
 }
 
 /**
@@ -35,7 +35,7 @@ export const assignDefaultAcceptHeader: Interceptor = async (request) => {
 export const removeConflictingAuthorizationHeader: Interceptor = async (request) => {
   // Check if either credentials exist.
   if (request.authentication.username !== null || request.authentication.password !== null) {
-    delete request.headers['authorization']
+    delete request.headers.authorization
   }
 }
 
